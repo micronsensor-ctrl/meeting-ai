@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<title>MeetingAI v4 — Trident 1995</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0c10; --surface:#111318; --surface2:#1a1d24; --border:#2a2d36;
+  --accent:#00d4aa; --accent2:#0088ff; --accent3:#ff6b35;
+  --text:#e8eaf0; --text2:#8892a4; --text3:#555d6e;
+  --red:#ff4757; --gold:#ffd700; --radius:14px; --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,170,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* NAV TABS */
+.nav-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.nav-tab{flex:1;padding:12px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nav-tab .tab-icon{display:block;font-size:18px;margin-bottom:2px;}
+
+/* TOPBAR inside each section */
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px;}
+.section-title{font-size:16px;font-weight:700;}
+.api-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text2);cursor:pointer;background:transparent;}
+.api-badge.set{border-color:var(--accent);color:var(--accent);}
+
+main{position:relative;z-index:1;padding:12px 16px;max-width:640px;margin:0 auto;}
+.tab-page{display:none;} .tab-page.active{display:block;}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.card-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.card-title .icon{font-size:15px;}
+
+/* STEPS (mini) */
+.mini-steps{display:flex;gap:4px;margin-bottom:14px;}
+.mini-step{flex:1;height:3px;border-radius:2px;background:var(--border);}
+.mini-step.done{background:var(--accent);}
+.mini-step.active{background:var(--accent2);}
+
+/* FIELDS */
+.field{margin-bottom:10px;}
+.field label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:500;}
+.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field textarea{resize:none;}
+.field select option{background:var(--surface2);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--radius-sm);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-danger{background:rgba(255,71,87,0.12);color:var(--red);border:1px solid rgba(255,71,87,0.3);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-sm{padding:8px 14px;font-size:12px;width:auto;border-radius:8px;}
+.btn-row{display:flex;gap:8px;}
+.btn-row .btn-secondary{flex:0 0 76px;}
+
+/* NOTTA HIGHLIGHT */
+.notta-box{background:rgba(0,136,255,0.07);border:1px solid rgba(0,136,255,0.25);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;}
+.notta-box .notta-title{font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px;}
+.notta-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;font-size:13px;color:var(--text2);line-height:1.7;}
+.notta-step-num{min-width:22px;height:22px;border-radius:50%;background:var(--accent2);color:#000;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.notta-step strong{color:var(--text);}
+
+/* BIG PASTE AREA */
+.paste-area{width:100%;background:var(--surface2);border:2px dashed var(--border);border-radius:var(--radius-sm);padding:14px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:13px;min-height:160px;resize:none;outline:none;line-height:1.8;transition:border-color 0.2s;}
+.paste-area:focus{border-color:var(--accent);border-style:solid;}
+.paste-area::placeholder{color:var(--text3);}
+
+/* PROGRESS */
+.progress-wrap{margin:10px 0;}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s ease;width:0%;}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px;}
+
+/* SUMMARY CARDS */
+.summary-exec{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.2);border-radius:var(--radius-sm);padding:14px;font-size:14px;line-height:1.9;margin-bottom:12px;}
+.lang-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.lang-tag{font-size:10px;padding:2px 8px;border-radius:12px;font-family:'IBM Plex Mono',monospace;font-weight:700;}
+.lang-th{background:rgba(0,212,170,0.15);color:var(--accent);}
+.lang-en{background:rgba(0,136,255,0.15);color:var(--accent2);}
+.lang-zh{background:rgba(255,107,53,0.15);color:var(--accent3);}
+
+.decision-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.7;}
+.decision-item:last-child{border-bottom:none;}
+.decision-icon{font-size:14px;flex-shrink:0;margin-top:2px;}
+
+.action-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;}
+.action-task{font-size:14px;font-weight:600;margin-bottom:6px;line-height:1.6;}
+.action-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{font-size:11px;padding:2px 8px;border-radius:10px;font-family:'IBM Plex Mono',monospace;}
+.tag-person{background:rgba(0,136,255,0.15);color:var(--accent2);}
+.tag-date{background:rgba(255,215,0,0.1);color:var(--gold);}
+.tag-high{background:rgba(255,71,87,0.15);color:var(--red);}
+.tag-medium{background:rgba(255,165,0,0.15);color:orange;}
+.tag-low{background:rgba(0,212,170,0.1);color:var(--accent);}
+
+/* REPORT EDITABLE */
+.report-edit{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.9;color:var(--text);outline:none;min-height:260px;white-space:pre-wrap;font-family:'Sarabun',sans-serif;}
+.report-edit:focus{border-color:var(--accent);}
+
+/* APPROVE */
+.approve-zone{text-align:center;padding:20px;}
+.approve-zone .big-icon{font-size:44px;margin-bottom:10px;}
+.approve-zone h3{font-size:16px;margin-bottom:6px;}
+.approve-zone p{font-size:12px;color:var(--text2);margin-bottom:16px;}
+.approved-badge{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:rgba(0,212,170,0.1);border-radius:var(--radius-sm);color:var(--accent);font-size:13px;font-weight:600;}
+
+/* SEND OPTIONS */
+.send-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.send-row:last-child{border-bottom:none;}
+.send-left{display:flex;align-items:center;gap:10px;}
+.send-icon-big{font-size:22px;}
+.send-label{font-size:14px;font-weight:600;}
+.send-desc{font-size:11px;color:var(--text2);}
+.toggle{width:44px;height:24px;border-radius:12px;background:var(--border);cursor:pointer;position:relative;border:none;transition:background 0.2s;flex-shrink:0;}
+.toggle.on{background:var(--accent);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform 0.2s;}
+.toggle.on::after{transform:translateX(20px);}
+
+/* GBOARD SECTION */
+.shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.shortcut-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;}
+.shortcut-key{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:2px;}
+.shortcut-expand{font-size:12px;color:var(--text2);margin-bottom:2px;}
+.shortcut-use{font-size:11px;color:var(--text3);}
+
+/* QUICK REF */
+.timeline{position:relative;padding-left:20px;}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:14px;}
+.tl-item::before{content:'';position:absolute;left:-17px;top:5px;width:10px;height:10px;border-radius:50%;border:2px solid var(--border);background:var(--bg);}
+.tl-item.critical::before{border-color:var(--red);background:var(--red);}
+.tl-item.done::before{border-color:var(--accent);background:var(--accent);}
+.tl-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;}
+.tl-label{font-size:13px;color:var(--text);line-height:1.6;}
+.tl-sub{font-size:11px;color:var(--text2);}
+.tl-item.critical .tl-time{color:var(--red);}
+
+.device-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px;}
+.d1{background:rgba(0,212,170,0.15);color:var(--accent);}
+.d2{background:rgba(0,136,255,0.15);color:var(--accent2);}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.check-box.checked{background:var(--accent);border-color:var(--accent);}
+.check-box.checked::after{content:'✓';color:#000;font-size:13px;font-weight:700;}
+.check-text{font-size:13px;line-height:1.5;}
+.check-text.checked{color:var(--text3);text-decoration:line-through;}
+.check-section-title{font-size:11px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:14px 0 6px;font-family:'IBM Plex Mono',monospace;}
+.check-progress{font-size:12px;color:var(--text2);text-align:right;margin-bottom:8px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--border);width:100%;padding:20px;transform:translateY(100%);transition:transform 0.3s ease;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal h3{font-size:16px;margin-bottom:4px;}
+.modal p{font-size:12px;color:var(--text2);margin-bottom:14px;}
+.modal-actions{display:flex;gap:10px;margin-top:14px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:10px 20px;font-size:13px;color:var(--text);z-index:999;transition:transform 0.3s ease;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:var(--accent);color:var(--accent);}
+.toast.error{border-color:var(--red);color:var(--red);}
+
+/* MISC */
+.spinner{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:spin 0.8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.hidden{display:none!important;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.info-box{background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.8;}
+.warn-box{background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.2);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.8;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="switchTab('meeting')">
+    <span class="tab-icon">🤖</span>ประชุม
+  </button>
+  <button class="nav-tab" onclick="switchTab('gboard')">
+    <span class="tab-icon">⌨️</span>Gboard
+  </button>
+  <button class="nav-tab" onclick="switchTab('ref')">
+    <span class="tab-icon">⏱</span>Timeline
+  </button>
+  <button class="nav-tab" onclick="switchTab('check')">
+    <span class="tab-icon">✅</span>Checklist
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 1: MEETING AI
+══════════════════════════════════════════ -->
+<div class="tab-page active" id="tab-meeting">
+  <div class="section-header">
+    <div class="section-title">Meeting<span style="color:var(--accent)">AI</span> <span style="font-size:12px;color:var(--text3)">v4</span></div>
+    <button class="api-badge" id="apiBadgeBtn" onclick="openApiModal()">⚙ API Key</button>
+  </div>
+  <main>
+    <!-- MINI STEPS -->
+    <div class="mini-steps">
+      <div class="mini-step active" id="ms0"></div>
+      <div class="mini-step" id="ms1"></div>
+      <div class="mini-step" id="ms2"></div>
+      <div class="mini-step" id="ms3"></div>
+      <div class="mini-step" id="ms4"></div>
+    </div>
+
+    <!-- PAGE 0: SETUP -->
+    <div id="mpage0">
+      <div class="card">
+        <div class="card-title"><span class="icon">📋</span>ข้อมูลการประชุม</div>
+        <div class="field">
+          <label>ชื่อการประชุม</label>
+          <input id="mTitle" type="text" placeholder="เช่น ประชุม C-UAS Phase 2">
+        </div>
+        <div class="row2">
+          <div class="field"><label>วันที่</label><input id="mDate" type="date"></div>
+          <div class="field"><label>เวลา</label><input id="mTime" type="time"></div>
+        </div>
+        <div class="field">
+          <label>สถานที่</label>
+          <input id="mLocation" type="text" placeholder="ห้องประชุม / Zoom">
+        </div>
+        <div class="field">
+          <label>ผู้เข้าร่วม</label>
+          <textarea id="mAttendees" style="min-height:60px" placeholder="นาย Atipat (CEO), Mr. Chen, Col. Smith"></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🎯</span>รูปแบบรายงาน</div>
+        <div class="field">
+          <label>ประเภท</label>
+          <select id="mType">
+            <option value="standard">ทั่วไป (บริษัท)</option>
+            <option value="government">ราชการ / กลาโหม</option>
+            <option value="sales">Sales Meeting</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>บริษัท / หน่วยงาน</label>
+          <input id="mCompany" type="text" value="Trident 1995">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="mGoPage(1)">ถัดไป — อัดเสียง →</button>
+    </div>
+
+    <!-- PAGE 1: INPUT -->
+    <div id="mpage1" class="hidden">
+      <!-- NOTTA (Primary) -->
+      <div class="card">
+        <div class="card-title"><span class="icon">🎙</span>Notta <span style="color:var(--accent2);font-size:10px;margin-left:4px">แนะนำ — เครื่องที่ 2</span></div>
+        <div class="notta-box">
+          <div class="notta-title">ขั้นตอนจาก Notta → MeetingAI</div>
+          <div class="notta-step"><div class="notta-step-num">1</div><div>เปิด <strong>Notta</strong> บนเครื่องที่ 2 → กด <strong>Start Recording</strong></div></div>
+          <div class="notta-step"><div class="notta-step-num">2</div><div>ประชุมตามปกติ → นาที <strong>75 หยุดอัด</strong> (critical!)</div></div>
+          <div class="notta-step"><div class="notta-step-num">3</div><div>รอ Notta ถอดข้อความ <strong>2-3 นาที</strong></div></div>
+          <div class="notta-step"><div class="notta-step-num">4</div><div>กด <strong>⋮ → Export → Copy text</strong></div></div>
+          <div class="notta-step"><div class="notta-step-num">5</div><div>กลับมาที่หน้านี้ → กด <strong>📋 วาง</strong> ด้านล่าง</div></div>
+        </div>
+        <button class="btn btn-secondary" style="margin-bottom:10px" onclick="openNotta()">📱 เปิด Notta</button>
+      </div>
+
+      <!-- PASTE AREA -->
+      <div class="card">
+        <div class="card-title"><span class="icon">📝</span>วาง Transcript ที่นี่</div>
+        <textarea class="paste-area" id="mTranscript"
+          placeholder="วางข้อความจาก Notta / Google Recorder / โน้ตประชุม&#10;&#10;รองรับผสม ไทย / English / 中文&#10;&#10;ตัวอย่าง:&#10;Atipat: งบโครงการ C-UAS Phase 2 อยู่ที่ 138 ล้านบาท&#10;Mr. Chen: We can deliver by Q3 2026&#10;陈先生: 价格可以再商量"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <span id="charCount" style="font-size:11px;color:var(--text3)">0 ตัวอักษร</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('mTranscript').value='';updateCharCount()">ล้าง</button>
+            <button class="btn btn-secondary btn-sm" onclick="pasteClip()">📋 วาง</button>
+          </div>
+        </div>
+
+        <!-- Note tags quick insert -->
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--text3);width:100%;margin-bottom:2px">แทรก tag:</span>
+          <button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:11px" onclick="insertTag('[DECISION]')">✅ dc</button>
+          <button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:11px" onclick="insertTag('[ACTION]')">⚡ ac</button>
+          <button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:11px" onclick="insertTag('[RISK]')">⚠️ rk</button>
+          <button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:11px" onclick="insertTag('[IDEA]')">💡 id</button>
+          <button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:11px" onclick="insertTag('[DEFER]')">⏸ df</button>
+        </div>
+      </div>
+
+      <!-- Upload audio -->
+      <div class="card">
+        <div class="card-title"><span class="icon">📁</span>หรืออัปโหลดไฟล์เสียง (Whisper)</div>
+        <div style="border:2px dashed var(--border);border-radius:var(--radius-sm);padding:18px;text-align:center;cursor:pointer;color:var(--text2);font-size:13px" onclick="document.getElementById('mAudioFile').click()">
+          🎵 แตะเลือกไฟล์ MP3/M4A/WAV<br>
+          <span style="font-size:11px;color:var(--text3)">ต้องมี OpenAI API Key • สูงสุด 25MB</span>
+        </div>
+        <input type="file" id="mAudioFile" accept="audio/*" class="hidden" onchange="handleAudio(event)">
+        <div id="audioInfo" class="hidden" style="margin-top:8px;font-size:13px;color:var(--text2)"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="mGoPage(0)">← กลับ</button>
+        <button class="btn btn-primary" onclick="doSummarize()">🤖 สรุปด้วย Claude →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 2: LOADING + RESULT -->
+    <div id="mpage2" class="hidden">
+      <div id="loadingBlock">
+        <div class="card" style="text-align:center;padding:36px 20px">
+          <div class="spinner" style="width:44px;height:44px;margin:0 auto 14px"></div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:6px">Claude กำลังวิเคราะห์...</div>
+          <div style="font-size:12px;color:var(--text2)" id="loadLabel">อ่าน transcript...</div>
+          <div class="progress-wrap" style="margin-top:14px">
+            <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="resultBlock" class="hidden">
+        <div class="card">
+          <div class="card-title"><span class="icon">📊</span>สรุปสาระสำคัญ</div>
+          <div class="summary-exec" id="rExec"></div>
+          <div class="lang-chips" id="rLang"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">✅</span>มติที่ประชุม</div>
+          <div id="rDecisions"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">⚡</span>Action Items</div>
+          <div id="rActions"></div>
+        </div>
+        <div class="card" id="rIssuesCard">
+          <div class="card-title"><span class="icon">❓</span>ประเด็นค้าง</div>
+          <div id="rIssues"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="mGoPage(1)">← กลับ</button>
+          <button class="btn btn-primary" onclick="mGoPage(3)">รับรอง →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: APPROVE -->
+    <div id="mpage3" class="hidden">
+      <div class="card">
+        <div class="card-title"><span class="icon">📝</span>รายงานฉบับเต็ม (แก้ไขได้)</div>
+        <div class="report-edit" id="reportEdit" contenteditable="true"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:5px">แตะข้อความเพื่อแก้ไขสด</div>
+      </div>
+      <div class="card">
+        <div id="approveZone" class="approve-zone">
+          <div class="big-icon">📋</div>
+          <h3>รับรองรายงานการประชุม</h3>
+          <p>ตรวจสอบแล้ว กดรับรองเพื่อล็อครายงาน</p>
+          <button class="btn btn-primary" onclick="doApprove()">✅ รับรองรายงาน</button>
+        </div>
+        <div class="approved-badge hidden" id="approvedBadge">
+          ✅ รับรองแล้ว — <span id="approveTime"></span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="mGoPage(2)">← กลับ</button>
+        <button class="btn btn-primary" id="toSendBtn" onclick="mGoPage(4)" disabled>ส่ง Follow-up →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 4: SEND -->
+    <div id="mpage4" class="hidden">
+      <div class="card">
+        <div class="card-title"><span class="icon">🚀</span>ส่ง Follow-up</div>
+        <div class="field">
+          <label>อีเมลผู้รับ (คั่นด้วย ,)</label>
+          <input id="emailTo" type="email" placeholder="team@trident1995.co.th">
+        </div>
+        <div class="send-row">
+          <div class="send-left">
+            <div class="send-icon-big">📧</div>
+            <div><div class="send-label">Email รายงาน</div><div class="send-desc">เปิด Gmail / Mail app</div></div>
+          </div>
+          <button class="toggle on" id="togEmail" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="send-row">
+          <div class="send-left">
+            <div class="send-icon-big">📅</div>
+            <div><div class="send-label">Google Calendar</div><div class="send-desc">สร้าง reminder แต่ละ Action Item</div></div>
+          </div>
+          <button class="toggle on" id="togCal" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="send-row">
+          <div class="send-left">
+            <div class="send-icon-big">💚</div>
+            <div><div class="send-label">LINE แจ้งทีม</div><div class="send-desc">ส่งสรุปย่อทาง LINE</div></div>
+          </div>
+          <button class="toggle" id="togLine" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="send-row">
+          <div class="send-left">
+            <div class="send-icon-big">📄</div>
+            <div><div class="send-label">Google Docs</div><div class="send-desc">คัดลอก → วางใน Google Docs ใหม่</div></div>
+          </div>
+          <button class="toggle" id="togDocs" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+
+      <div class="card" id="calPreview">
+        <div class="card-title"><span class="icon">📅</span>Events ที่จะสร้าง</div>
+        <div id="calList"></div>
+      </div>
+
+      <button class="btn btn-primary" id="sendBtn" onclick="doSendAll()">🚀 ส่งทุกอย่างเลย</button>
+
+      <div class="hidden" id="doneBlock">
+        <div class="card" style="text-align:center;padding:32px 20px;margin-top:12px">
+          <div style="font-size:52px;margin-bottom:12px">🎉</div>
+          <h3 style="font-size:18px;margin-bottom:6px">เสร็จสมบูรณ์!</h3>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">ส่งรายงาน + สร้าง Calendar แล้ว</p>
+          <button class="btn btn-secondary" style="max-width:180px;margin:0 auto" onclick="resetMeeting()">➕ ประชุมใหม่</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 2: GBOARD SHORTCUTS
+══════════════════════════════════════════ -->
+<div class="tab-page" id="tab-gboard">
+<main>
+  <div class="card">
+    <div class="card-title"><span class="icon">⌨️</span>Gboard Shortcuts — Trident 1995</div>
+    <div class="info-box" style="margin-bottom:14px">
+      พิมพ์ shortcut → Gboard แปลงเป็น tag อัตโนมัติ<br>
+      เร็วกว่าพิมพ์ปกติ <strong style="color:var(--accent)">3 เท่า</strong> ขณะประชุม
+    </div>
+    <div class="shortcut-grid">
+      <div class="shortcut-item">
+        <div class="shortcut-key">dc</div>
+        <div class="shortcut-expand">[DECISION]</div>
+        <div class="shortcut-use">มติที่ประชุม</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">ac</div>
+        <div class="shortcut-expand">[ACTION]</div>
+        <div class="shortcut-use">งานที่ต้องทำ</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">id</div>
+        <div class="shortcut-expand">[IDEA]</div>
+        <div class="shortcut-use">ไอเดีย / ข้อเสนอ</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">rk</div>
+        <div class="shortcut-expand">[RISK]</div>
+        <div class="shortcut-use">ความเสี่ยง</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">vf</div>
+        <div class="shortcut-expand">[VERIFY]</div>
+        <div class="shortcut-use">ต้องตรวจสอบ</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">df</div>
+        <div class="shortcut-expand">[DEFER]</div>
+        <div class="shortcut-use">เลื่อน/ค้าง</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">td</div>
+        <div class="shortcut-expand">[TODO]</div>
+        <div class="shortcut-use">รายการทำ</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">bg</div>
+        <div class="shortcut-expand">[BUDGET]</div>
+        <div class="shortcut-use">งบประมาณ</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">dl</div>
+        <div class="shortcut-expand">[DEADLINE]</div>
+        <div class="shortcut-use">กำหนดส่ง</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">ow</div>
+        <div class="shortcut-expand">[OWNER]</div>
+        <div class="shortcut-use">ผู้รับผิดชอบ</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">nt</div>
+        <div class="shortcut-expand">[NEXT]</div>
+        <div class="shortcut-use">ขั้นตอนต่อไป</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">ap</div>
+        <div class="shortcut-expand">[APPROVED]</div>
+        <div class="shortcut-use">อนุมัติแล้ว</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup guide -->
+  <div class="card">
+    <div class="card-title"><span class="icon">⚙️</span>วิธีตั้งค่า Gboard</div>
+    <div style="font-size:13px;color:var(--text2);line-height:2.1">
+      <span style="color:var(--accent);font-weight:700">1.</span> Settings → System → Languages &amp; input<br>
+      <span style="color:var(--accent);font-weight:700">2.</span> Gboard → Preferences → Advanced<br>
+      <span style="color:var(--accent);font-weight:700">3.</span> Text correction → Personal dictionary<br>
+      <span style="color:var(--accent);font-weight:700">4.</span> กด <strong style="color:var(--text)">+</strong> → ใส่ Word + Shortcut ทีละคู่<br>
+      <span style="color:var(--accent);font-weight:700">5.</span> ทดสอบ: พิมพ์ "dc " (มีเว้นวรรค) → ต้องได้ [DECISION]
+    </div>
+    <button class="btn btn-secondary" style="margin-top:12px" onclick="window.open('https://support.google.com/gboard','_blank')">
+      📖 Gboard Help
+    </button>
+  </div>
+
+  <!-- Trident-specific phrases -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span>Shortcuts สำหรับงาน Trident 1995</div>
+    <div class="shortcut-grid">
+      <div class="shortcut-item">
+        <div class="shortcut-key">tr</div>
+        <div class="shortcut-expand">Trident 1995 Co., Ltd.</div>
+        <div class="shortcut-use">ชื่อบริษัท</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">cu</div>
+        <div class="shortcut-expand">ระบบ C-UAS</div>
+        <div class="shortcut-use">anti-drone</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">uv</div>
+        <div class="shortcut-expand">อากาศยานไร้คนขับ</div>
+        <div class="shortcut-use">UAV/drone</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">mb</div>
+        <div class="shortcut-expand">ล้านบาท</div>
+        <div class="shortcut-use">งบประมาณ</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">sp</div>
+        <div class="shortcut-expand">Saphiran Resource Co., Ltd.</div>
+        <div class="shortcut-use">บริษัทเคมี</div>
+      </div>
+      <div class="shortcut-item">
+        <div class="shortcut-key">at</div>
+        <div class="shortcut-expand">AT-802F SkyGuard</div>
+        <div class="shortcut-use">โครงการดับเพลิง</div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 3: TIMELINE QUICK REF
+══════════════════════════════════════════ -->
+<div class="tab-page" id="tab-ref">
+<main>
+  <div class="card">
+    <div class="card-title"><span class="icon">⏱</span>Timeline 2 เครื่อง — ทุกการประชุม</div>
+    <div style="display:flex;gap:12px;margin-bottom:14px;font-size:12px">
+      <span class="device-badge d1" style="font-size:11px;padding:4px 10px">📱 D1 = จด+สรุป</span>
+      <span class="device-badge d2" style="font-size:11px;padding:4px 10px">📱 D2 = Notta</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-item done">
+        <div class="tl-time">-15 นาที</div>
+        <div class="tl-label">ชาร์จ 2 เครื่อง + เปิด template
+          <span class="device-badge d1">D1</span>
+        </div>
+        <div class="tl-sub">Google Docs agenda, Google Keep notes</div>
+      </div>
+      <div class="tl-item done">
+        <div class="tl-time">0 นาที — เริ่มประชุม</div>
+        <div class="tl-label">D2 กด Start Recording ใน Notta
+          <span class="device-badge d2">D2</span>
+        </div>
+        <div class="tl-sub">D1 เปิด MeetingAI → กรอกข้อมูลประชุม</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">ระหว่างประชุม</div>
+        <div class="tl-label">D1 จดโน้ตใน Google Keep ด้วย Gboard shortcuts
+          <span class="device-badge d1">D1</span>
+        </div>
+        <div class="tl-sub">dc = [DECISION] • ac = [ACTION] • rk = [RISK]</div>
+      </div>
+      <div class="tl-item critical">
+        <div class="tl-time">⚠️ นาที 75 — สำคัญมาก</div>
+        <div class="tl-label">D2 กด STOP Notta ทันที
+          <span class="device-badge d2">D2</span>
+        </div>
+        <div class="tl-sub">ต้องหยุดที่ 75 ไม่ใช่ 90 — ให้เวลา AI ทำงาน</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">นาที 75–78</div>
+        <div class="tl-label">D2 รอ Notta ถอดข้อความ (2-3 นาที)
+          <span class="device-badge d2">D2</span>
+        </div>
+        <div class="tl-sub">D1 Copy โน้ตจาก Google Keep</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">นาที 78</div>
+        <div class="tl-label">D2 Copy transcript → D1 วางใน MeetingAI
+          <span class="device-badge d1">D1</span><span class="device-badge d2">D2</span>
+        </div>
+        <div class="tl-sub">วิธี: Notta → ⋮ → Export → Copy text → D1 กด 📋 วาง</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">นาที 78–82</div>
+        <div class="tl-label">D1 กด "สรุปด้วย Claude" → รอ 20 วินาที
+          <span class="device-badge d1">D1</span>
+        </div>
+        <div class="tl-sub">Claude สรุป มติ + Action Items + รายงานฉบับเต็ม</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">นาที 82</div>
+        <div class="tl-label">D1 Cast / Share link → แสดงบนจอ
+          <span class="device-badge d1">D1</span>
+        </div>
+        <div class="tl-sub">Settings → Cast → เลือก projector / ส่ง link ทาง LINE</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">นาที 82–88</div>
+        <div class="tl-label">ทีมตรวจสอบ → แก้ชื่อ/ตัวเลข/วันที่
+          <span class="device-badge d1">D1</span>
+        </div>
+        <div class="tl-sub">แตะข้อความในรายงาน → แก้ได้ทันที</div>
+      </div>
+      <div class="tl-item critical">
+        <div class="tl-time">นาที 88 — รับรอง</div>
+        <div class="tl-label">กด ✅ รับรองรายงาน ก่อนเลิกประชุม
+          <span class="device-badge d1">D1</span>
+        </div>
+        <div class="tl-sub">ประธานรับรอง → ล็อครายงาน</div>
+      </div>
+      <div class="tl-item done">
+        <div class="tl-time">นาที 88–90</div>
+        <div class="tl-label">กด ส่งทุกอย่างเลย → อัตโนมัติ
+          <span class="device-badge d1">D1</span>
+        </div>
+        <div class="tl-sub">Email + Google Calendar + LINE notify</div>
+      </div>
+      <div class="tl-item done">
+        <div class="tl-time">✅ นาที 90</div>
+        <div class="tl-label" style="color:var(--accent);font-weight:700">เลิกประชุม — MoM อนุมัติแล้ว!</div>
+        <div class="tl-sub">ทีมได้รับ email + calendar event ครบทุกคน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup plans -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🚨</span>Backup Plans</div>
+    <div style="font-size:13px;color:var(--text2);line-height:2">
+      <strong style="color:var(--red)">Notta ไม่ถอด</strong> → Copy audio → อัปโหลดไฟล์ใน MeetingAI แทน<br>
+      <strong style="color:var(--red)">Cast ไม่ติด</strong> → Google Docs → Share link → ส่งทาง LINE<br>
+      <strong style="color:var(--red)">Claude timeout</strong> → กด retry / ใช้โน้ต Google Keep สรุปเอง<br>
+      <strong style="color:var(--red)">WiFi หาย</strong> → Google Docs offline mode ยังใช้ได้
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 4: CHECKLIST
+══════════════════════════════════════════ -->
+<div class="tab-page" id="tab-check">
+<main>
+  <div class="card">
+    <div class="card-title"><span class="icon">✅</span>Pre-Launch Checklist</div>
+    <div class="check-progress" id="checkProgress">0 / 0 รายการ</div>
+
+    <div class="check-section-title">📱 เครื่องที่ 1 (D1 — จด + สรุป)</div>
+    <div id="checkList"></div>
+  </div>
+  <button class="btn btn-danger btn-sm" style="width:auto;margin:0 auto;display:block" onclick="resetChecklist()">🔄 รีเซ็ต Checklist</button>
+</main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- API MODAL -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h3>🔑 API Keys</h3>
+    <p>เก็บในเครื่องเท่านั้น ไม่ผ่าน server</p>
+    <div class="field">
+      <label>Anthropic API Key (Claude — สรุปประชุม)</label>
+      <input type="password" id="inAnthropicKey" placeholder="sk-ant-...">
+    </div>
+    <div class="field">
+      <label>OpenAI API Key (Whisper — ถอดเสียง, optional)</label>
+      <input type="password" id="inOpenAIKey" placeholder="sk-...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeApiModal()">ยกเลิก</button>
+      <button class="btn btn-primary btn-sm" onclick="saveKeys()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════ STATE ═══════
+let ANT_KEY = localStorage.getItem('ant_key')||'';
+let OAI_KEY = localStorage.getItem('oai_key')||'';
+let summaryData = null;
+let reportText = '';
+let approved = false;
+let audioBlob = null;
+let currentMPage = 0;
+
+const CHECKS = [
+  {s:'D1 - Device 1 (Notes + Summary)', items:[
+    'Google Keep installed','Google Docs installed','Google Sheets installed',
+    'Google Drive installed','Google Calendar installed',
+    'MeetingAI v4 open in Chrome','Anthropic API Key entered',
+    'Gboard shortcuts set (dc, ac, id, rk, vf, df)',
+    'Google Docs offline mode ON',
+    'Google Sheets offline mode ON',
+    'Screen Cast tested with projector/TV',
+    'Template: Meeting Agenda created',
+    'Template: Meeting Notes (Google Keep) created',
+    'Template: Action Items (Google Sheets) created',
+  ]},
+  {s:'D2 - Device 2 (Notta Recording)', items:[
+    'Notta installed',
+    'Notta login with same Google account as D1',
+    'Notta language: Thai + Auto-detect',
+    'Notta Speaker Diarization ON',
+    'Notta Auto-save to Google Drive ON',
+    'Recording test 30s done - transcript quality OK',
+    'Export to Copy text tested OK',
+    'Google Drive sync tested (D2 file visible on D1)',
+  ]},
+  {s:'Google Account Sync (Both Devices)', items:[
+    'Both devices login same Google account',
+    'Drive sync ON both devices',
+    'Docs + Sheets sync ON',
+    'Calendar sync ON',
+    'Keep sync ON',
+    'Sync test: note from D1 appears on D2 within 30s',
+  ]},
+  {s:'Practice Meeting (Before First Real Meeting)', items:[
+    'Practice run 30min with 1-2 people',
+    'Notta recorded + transcribed OK',
+    'Copy transcript to MeetingAI - Claude summarized OK',
+    'Display on screen / share link worked',
+    'Approved report + sent email OK',
+    'Completed within 30 minutes',
+  ]},
+  {s:'Meeting Day Checklist', items:[
+    'Both devices fully charged',
+    'Powerbank ready',
+    'WiFi password known',
+    'Informed chairperson about timeline (stop at min 75)',
+    'Templates open and ready (starred/pinned)',
+    'Confidence level: HIGH',
+  ]},
+];
+
+// ═══════ INIT ═══════
+window.onload = ()=>{
+  const now = new Date();
+  document.getElementById('mDate').value = now.toISOString().split('T')[0];
+  document.getElementById('mTime').value = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  updateApiBadge();
+  buildChecklist();
+  document.getElementById('mTranscript').addEventListener('input', updateCharCount);
+};
+
+// ═══════ TAB SWITCH ═══════
+function switchTab(name){
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const tabs = ['meeting','gboard','ref','check'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(name)].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ═══════ MEETING PAGES ═══════
+function mGoPage(n){
+  for(let i=0;i<5;i++) document.getElementById('mpage'+i).classList.add('hidden');
+  document.getElementById('mpage'+n).classList.remove('hidden');
+  // mini steps
+  for(let i=0;i<5;i++){
+    const s = document.getElementById('ms'+i);
+    s.className = 'mini-step' + (i<n?' done':i===n?' active':'');
+  }
+  currentMPage = n;
+  window.scrollTo(0,0);
+}
+
+// ═══════ API ═══════
+function openApiModal(){
+  document.getElementById('inAnthropicKey').value=ANT_KEY;
+  document.getElementById('inOpenAIKey').value=OAI_KEY;
+  document.getElementById('apiModal').classList.add('open');
+}
+function closeApiModal(){document.getElementById('apiModal').classList.remove('open');}
+function saveKeys(){
+  ANT_KEY=document.getElementById('inAnthropicKey').value.trim();
+  OAI_KEY=document.getElementById('inOpenAIKey').value.trim();
+  localStorage.setItem('ant_key',ANT_KEY);
+  localStorage.setItem('oai_key',OAI_KEY);
+  updateApiBadge(); closeApiModal();
+  showToast('✅ บันทึก API Keys แล้ว','success');
+}
+function updateApiBadge(){
+  const b=document.getElementById('apiBadgeBtn');
+  b.textContent = ANT_KEY ? '✓ API พร้อม' : '⚙ API Key';
+  b.className = 'api-badge' + (ANT_KEY?' set':'');
+}
+
+// ═══════ NOTTA + HELPERS ═══════
+function openNotta(){
+  // Try intent URI then Play Store fallback
+  const t = setTimeout(()=>window.open('https://play.google.com/store/apps/details?id=ai.notta.android','_blank'),1200);
+  window.location.href = 'intent://notta.ai/#Intent;scheme=notta;package=ai.notta.android;end';
+  showToast('🎙 เปิด Notta — กลับมา Copy transcript แล้วกด วาง','success');
+}
+
+async function pasteClip(){
+  try{
+    const t = await navigator.clipboard.readText();
+    document.getElementById('mTranscript').value = t;
+    updateCharCount();
+    showToast('[Clip] วางแล้ว '+t.length+' ตัวอักษร','success');
+  }catch(e){
+    showToast('⚠️ แตะค้างในช่องข้อความ → เลือก "วาง"','error');
+    document.getElementById('mTranscript').focus();
+  }
+}
+
+function insertTag(tag){
+  const ta = document.getElementById('mTranscript');
+  const pos = ta.selectionStart;
+  const val = ta.value;
+  ta.value = val.substring(0,pos) + '\n'+tag+' ' + val.substring(pos);
+  ta.selectionStart = ta.selectionEnd = pos + tag.length + 2;
+  ta.focus();
+  updateCharCount();
+}
+
+function updateCharCount(){
+  const n = document.getElementById('mTranscript').value.length;
+  document.getElementById('charCount').textContent = n.toLocaleString()+' ตัวอักษร';
+}
+
+function handleAudio(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  if(f.size > 25*1024*1024){showToast('❌ ไฟล์ใหญ่เกิน 25MB','error');return;}
+  audioBlob = f;
+  document.getElementById('audioInfo').classList.remove('hidden');
+  document.getElementById('audioInfo').innerHTML = `✅ <strong>${f.name}</strong> (${(f.size/1024/1024).toFixed(1)} MB)`;
+  showToast('✅ โหลดไฟล์แล้ว','success');
+}
+
+// ═══════ SUMMARIZE ═══════
+async function doSummarize(){
+  const txt = document.getElementById('mTranscript').value.trim();
+  if(!txt && !audioBlob){showToast('❌ กรุณาวาง transcript หรืออัปโหลดไฟล์เสียงก่อน','error');return;}
+  if(!ANT_KEY){openApiModal();showToast('⚠️ ใส่ Anthropic API Key ก่อน','error');return;}
+
+  mGoPage(2);
+  document.getElementById('loadingBlock').classList.remove('hidden');
+  document.getElementById('resultBlock').classList.add('hidden');
+
+  let transcript = txt;
+
+  if(audioBlob && !txt){
+    setProgress(20,'กำลังถอดเสียงด้วย Whisper...');
+    try{ transcript = await whisper(audioBlob); }
+    catch(e){
+      showToast('⚠️ Whisper ล้มเหลว ใช้ข้อความ demo แทน','error');
+      transcript = '[demo] ประชุมโครงการ C-UAS งบ 138 ล้านบาท มติ: อนุมัติดำเนินการ ผู้รับผิดชอบ: นาย Atipat กำหนดส่ง: 30 มิถุนายน 2026';
+    }
+  }
+
+  setProgress(55,'Claude กำลังสรุป...');
+  try{
+    const res = await callClaude(transcript);
+    summaryData = res;
+    setProgress(90,'สร้างรายงาน...');
+    await sleep(400);
+    renderResult(res);
+    setProgress(100,'เสร็จ!');
+    await sleep(300);
+    document.getElementById('loadingBlock').classList.add('hidden');
+    document.getElementById('resultBlock').classList.remove('hidden');
+  }catch(e){
+    mGoPage(1);
+    showToast('❌ Claude Error: '+e.message,'error');
+  }
+}
+
+function setProgress(pct,label){
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('loadLabel').textContent=label;
+}
+
+// ═══════ WHISPER ═══════
+async function whisper(blob){
+  if(!OAI_KEY) throw new Error('ไม่มี OpenAI key');
+  const fd = new FormData();
+  const ext = blob.type.includes('mp4')?'mp4':blob.type.includes('ogg')?'ogg':'mp3';
+  fd.append('file', new File([blob],'rec.'+ext,{type:blob.type}));
+  fd.append('model','whisper-1');
+  fd.append('response_format','text');
+  const r = await fetch('https://api.openai.com/v1/audio/transcriptions',{
+    method:'POST',headers:{'Authorization':'Bearer '+OAI_KEY},body:fd
+  });
+  if(!r.ok) throw new Error(await r.text());
+  return await r.text();
+}
+
+// ═══════ CLAUDE ═══════
+async function callClaude(transcript){
+  const meta = getMeta();
+  const type = document.getElementById('mType').value;
+
+  const sysprompts = {
+    government:`คุณคือเลขานุการการประชุมระดับสูง สำหรับโครงการจัดซื้อจัดจ้างภาครัฐของ ${meta.company}
+รับ transcript ภาษาไทย/อังกฤษ/จีน สร้างรายงานภาษาไทยทางการระดับหนังสือราชการ
+ระบุยศ/ตำแหน่ง จำนวนเงินทั้งตัวเลขและตัวอักษร คงศัพท์เทคนิค C-UAS UAV TOR BOQ C4ISR AT-802F ไว้ในวงเล็บ
+ตอบ JSON เท่านั้น ไม่มี markdown`,
+    sales:`คุณคือผู้ช่วยสรุป Sales Meeting ของ ${meta.company}
+รับ transcript ภาษาไทย/อังกฤษ/จีน สรุปเป็นภาษาไทย เน้น: ราคา เงื่อนไข ขั้นตอน closing action items
+ตอบ JSON เท่านั้น ไม่มี markdown`,
+    standard:`คุณคือเลขานุการการประชุมมืออาชีพของ ${meta.company}
+รับ transcript ภาษาไทย/อังกฤษ/จีน สรุปเป็นภาษาไทยทางการ ไม่แต่งเติมข้อมูล
+ตอบ JSON เท่านั้น ไม่มี markdown`,
+  };
+
+  const r = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':ANT_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:4000,
+      system: sysprompts[type]||sysprompts.standard,
+      messages:[{role:'user',content:`ข้อมูลการประชุม:
+ชื่อ: ${meta.title} | วันที่: ${meta.date} ${meta.time} | สถานที่: ${meta.location}
+ผู้เข้าร่วม: ${meta.attendees}
+
+Transcript:
+---
+${transcript}
+---
+
+สร้าง JSON:
+{
+  "executive_summary":"สรุป 3-5 บรรทัด",
+  "key_decisions":["มติ 1","มติ 2"],
+  "action_items":[{"task":"งาน","assignee":"ผู้รับผิดชอบ","deadline":"YYYY-MM-DD","priority":"high/medium/low"}],
+  "open_issues":["ประเด็นค้าง"],
+  "next_meeting":{"date":"YYYY-MM-DD","topic":"หัวข้อ"},
+  "language_breakdown":{"thai_percent":60,"english_percent":30,"chinese_percent":10},
+  "full_report":"รายงานฉบับเต็มภาษาไทยทางการ"
+}`}]
+    })
+  });
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API Error');}
+  const d = await r.json();
+  let t = d.content[0].text.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+  try{return JSON.parse(t);}
+  catch{return {executive_summary:t.substring(0,400),key_decisions:[],action_items:[],open_issues:[],next_meeting:null,language_breakdown:{thai_percent:70,english_percent:20,chinese_percent:10},full_report:t};}
+}
+
+function getMeta(){
+  return {
+    title:document.getElementById('mTitle').value||'ประชุมทั่วไป',
+    date:document.getElementById('mDate').value,
+    time:document.getElementById('mTime').value,
+    location:document.getElementById('mLocation').value||'-',
+    attendees:document.getElementById('mAttendees').value||'-',
+    company:document.getElementById('mCompany').value||'บริษัท',
+  };
+}
+
+// ═══════ RENDER ═══════
+function renderResult(d){
+  document.getElementById('rExec').textContent = d.executive_summary||'-';
+
+  const lb = d.language_breakdown||{};
+  document.getElementById('rLang').innerHTML =
+    `${lb.thai_percent?`<span class="lang-tag lang-th">TH ${lb.thai_percent}%</span>`:''}
+     ${lb.english_percent?`<span class="lang-tag lang-en">EN ${lb.english_percent}%</span>`:''}
+     ${lb.chinese_percent?`<span class="lang-tag lang-zh">ZH ${lb.chinese_percent}%</span>`:''}`;
+
+  document.getElementById('rDecisions').innerHTML = (d.key_decisions||[])
+    .map(dec=>`<div class="decision-item"><span class="decision-icon">✅</span><span>${dec}</span></div>`).join('');
+
+  document.getElementById('rActions').innerHTML = (d.action_items||[])
+    .map(a=>`<div class="action-card">
+      <div class="action-task">${a.task}</div>
+      <div class="action-meta">
+        <span class="tag tag-person">👤 ${a.assignee||'-'}</span>
+        <span class="tag tag-date">[Cal] ${a.deadline||'-'}</span>
+        <span class="tag tag-${a.priority||'medium'}">${a.priority||'medium'}</span>
+      </div></div>`).join('');
+
+  document.getElementById('rIssues').innerHTML = (d.open_issues||[])
+    .map(i=>`<div class="decision-item"><span class="decision-icon">❓</span><span>${i}</span></div>`).join('');
+
+  // Prepare report for page 3
+  reportText = d.full_report || buildReport(d);
+  document.getElementById('reportEdit').textContent = reportText;
+
+  // Calendar preview
+  buildCalPreview(d.action_items||[], d.next_meeting);
+}
+
+function buildReport(d){
+  const m = getMeta();
+  return `รายงานการประชุม\n${m.title}\nวันที่ ${m.date} เวลา ${m.time} น.\nณ ${m.location}\n\nผู้เข้าร่วม: ${m.attendees}\n\n${'━'.repeat(30)}\nสรุปสาระสำคัญ\n${'━'.repeat(30)}\n${d.executive_summary||'-'}\n\n${'━'.repeat(30)}\nมติที่ประชุม\n${'━'.repeat(30)}\n${(d.key_decisions||[]).map((x,i)=>`${i+1}. ${x}`).join('\n')}\n\n${'━'.repeat(30)}\nAction Items\n${'━'.repeat(30)}\n${(d.action_items||[]).map((a,i)=>`${i+1}. ${a.task}\n   ผู้รับผิดชอบ: ${a.assignee||'-'}\n   กำหนดส่ง: ${a.deadline||'-'}`).join('\n\n')}\n\n${'━'.repeat(30)}\nประเด็นค้าง\n${'━'.repeat(30)}\n${(d.open_issues||[]).map((x,i)=>`${i+1}. ${x}`).join('\n')||'-'}`;
+}
+
+function buildCalPreview(items, next){
+  let html = '';
+  items.filter(a=>a.deadline).forEach(a=>{
+    html += `<div class="action-card" style="margin-bottom:6px">
+      <div class="action-task" style="font-size:13px">⚡ ${a.task}</div>
+      <div class="action-meta">
+        <span class="tag tag-person">👤 ${a.assignee||'-'}</span>
+        <span class="tag tag-date">[Cal] ${a.deadline}</span>
+      </div></div>`;
+  });
+  if(next?.date) html += `<div class="action-card"><div class="action-task" style="font-size:13px">[Cal] ประชุมครั้งถัดไป: ${next.topic||'-'}</div><div class="action-meta"><span class="tag tag-date">[Cal] ${next.date}</span></div></div>`;
+  document.getElementById('calList').innerHTML = html || '<div style="font-size:13px;color:var(--text3)">ไม่มี deadline ที่ระบุ</div>';
+}
+
+// ═══════ APPROVE ═══════
+function doApprove(){
+  approved = true;
+  reportText = document.getElementById('reportEdit').textContent;
+  document.getElementById('approveZone').classList.add('hidden');
+  document.getElementById('approvedBadge').classList.remove('hidden');
+  document.getElementById('approveTime').textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})+' น.';
+  document.getElementById('toSendBtn').disabled = false;
+  showToast('✅ รับรองรายงานแล้ว','success');
+}
+
+// ═══════ SEND ═══════
+async function doSendAll(){
+  const btn = document.getElementById('sendBtn');
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div> กำลังส่ง...';
+  const doEmail = document.getElementById('togEmail').classList.contains('on');
+  const doCal   = document.getElementById('togCal').classList.contains('on');
+  const doLine  = document.getElementById('togLine').classList.contains('on');
+  const doDocs  = document.getElementById('togDocs').classList.contains('on');
+  const results = [];
+
+  if(doEmail){ try{sendEmail();results.push('[Email] เปิด Email');}catch(e){results.push('[Email] Error');} }
+  if(doCal && summaryData){ try{await makeCalEvents(summaryData.action_items||[],summaryData.next_meeting);results.push('[Cal] Calendar');}catch(e){results.push('[Cal] Error');} }
+  if(doLine){ try{sendLine();results.push('💚 LINE');}catch(e){results.push('💚 Error');} }
+  if(doDocs){ try{await copyToDocs();results.push('📄 Docs');}catch(e){results.push('📄 Error');} }
+
+  btn.classList.add('hidden');
+  document.getElementById('doneBlock').classList.remove('hidden');
+  showToast(results.join(' • ')||'เสร็จแล้ว','success');
+}
+
+function sendEmail(){
+  const to = document.getElementById('emailTo').value||'';
+  if(!to) throw new Error('ไม่มีอีเมล');
+  const m = getMeta();
+  window.open(`mailto:${to}?subject=${encodeURIComponent('รายงานการประชุม: '+m.title+' — '+m.date)}&body=${encodeURIComponent(reportText)}`);
+}
+
+async function makeCalEvents(items, next){
+  const all = [...items];
+  if(next?.date) all.push({task:'ประชุมครั้งถัดไป: '+(next.topic||''), deadline:next.date, assignee:'ทีมงาน'});
+  for(const a of all){
+    if(!a.deadline) continue;
+    const d = a.deadline.replace(/-/g,'');
+    window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(a.task)}&dates=${d}/${d}&details=${encodeURIComponent('ผู้รับผิดชอบ: '+(a.assignee||'-')+'\n\nจาก MeetingAI v4 — Trident 1995')}`, '_blank');
+    await sleep(600);
+  }
+}
+
+function sendLine(){
+  const m = getMeta();
+  const txt = `[Clip] รายงานการประชุม: ${m.title}\n[Cal] ${m.date} ${m.time}\n\n${summaryData?.executive_summary||''}\n\nAction Items: ${(summaryData?.action_items||[]).length} รายการ\n\n— MeetingAI v4`;
+  window.open('https://line.me/R/share?text='+encodeURIComponent(txt),'_blank');
+}
+
+async function copyToDocs(){
+  try{ await navigator.clipboard.writeText(reportText); }
+  catch(e){ const ta=document.createElement('textarea');ta.value=reportText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta); }
+  setTimeout(()=>window.open('https://docs.google.com/document/create','_blank'),300);
+  showToast('[Clip] คัดลอกแล้ว — วางใน Google Docs ได้เลย','success');
+}
+
+function resetMeeting(){
+  summaryData=null; reportText=''; approved=false; audioBlob=null;
+  document.getElementById('mTranscript').value='';
+  document.getElementById('audioInfo').classList.add('hidden');
+  document.getElementById('approveZone').classList.remove('hidden');
+  document.getElementById('approvedBadge').classList.add('hidden');
+  document.getElementById('toSendBtn').disabled=true;
+  document.getElementById('sendBtn').classList.remove('hidden');
+  document.getElementById('sendBtn').disabled=false;
+  document.getElementById('sendBtn').innerHTML='[Go] ส่งทุกอย่างเลย';
+  document.getElementById('doneBlock').classList.add('hidden');
+  updateCharCount();
+  mGoPage(0);
+}
+
+// ═══════ CHECKLIST ═══════
+let checkState = JSON.parse(localStorage.getItem('checks')||'{}');
+
+
+const SECTION_TH = [
+  'เครื่องที่ 1 — จด + สรุป',
+  'เครื่องที่ 2 — Notta อัดเสียง',
+  'Google Account Sync (2 เครื่อง)',
+  'ทดซ้อมก่อนประชุมจริง',
+  'Checklist วันประชุม',
+];
+
+function buildChecklist(){
+  const el = document.getElementById('checkList');
+  let html=''; let total=0; let done=0;
+  CHECKS.forEach((sec,si)=>{
+    html+=`<div class="check-section-title">${sec.s}</div>`;
+    sec.items.forEach((item,ii)=>{
+      const key=`${si}-${ii}`;
+      const checked=!!checkState[key];
+      total++; if(checked) done++;
+      html+='<div class="check-item" onclick="toggleCheck(\'' + key + '\')">'+
+        '<div class="chkbox'+(checked?' on':'')+'" id="cb-'+key+'"></div>'+
+        '<div class="chktxt'+(checked?' on':'')+'" id="ct-'+key+'">'+item+'</div>'+
+        '</div>';
+    });
+  });
+  el.innerHTML=html;
+  updateCheckProgress(done,total);
+}
+
+function toggleCheck(key){
+  checkState[key]=!checkState[key];
+  localStorage.setItem('checks',JSON.stringify(checkState));
+  const cb=document.getElementById('cb-'+key);
+  const ct=document.getElementById('ct-'+key);
+  cb.className='check-box'+(checkState[key]?' checked':'');
+  ct.className='check-text'+(checkState[key]?' checked':'');
+  let done=Object.values(checkState).filter(Boolean).length;
+  let total=CHECKS.reduce((s,c)=>s+c.items.length,0);
+  updateCheckProgress(done,total);
+}
+
+function updateCheckProgress(done,total){
+  document.getElementById('checkProgress').textContent=`${done} / ${total} รายการ (${Math.round(done/total*100)}%)`;
+}
+
+function resetChecklist(){
+  if(!confirm('รีเซ็ต checklist ทั้งหมด?')) return;
+  checkState={};
+  localStorage.setItem('checks','{}');
+  buildChecklist();
+}
+
+// ═══════ TOAST ═══════
+let toastTimer;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ═══════ UTIL ═══════
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+</script>
+</body>
+</html>
