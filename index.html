@@ -2,481 +2,632 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MeetingAI v5 — Claude Free</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0c10">
+<title>MeetingAI — บันทึกการประชุม</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0c10;--surface:#111318;--surface2:#1a1d24;--border:#2a2d36;--accent:#00d4aa;--accent2:#0088ff;--accent3:#ff6b35;--text:#e8eaf0;--text2:#8892a4;--text3:#555d6e;--red:#ff4757;--gold:#ffd700;--radius:14px;--radius-sm:8px;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,170,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
-.nav-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
-.nav-tab{flex:1;padding:12px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
-.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.tab-icon{display:block;font-size:18px;margin-bottom:2px;}
-.section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px;}
-.section-title{font-size:16px;font-weight:700;}
-main{position:relative;z-index:1;padding:12px 16px;max-width:640px;margin:0 auto;}
-.tab-page{display:none;}.tab-page.active{display:block;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
-.card-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-.mini-steps{display:flex;gap:4px;margin-bottom:14px;}
-.mini-step{flex:1;height:3px;border-radius:2px;background:var(--border);}
-.mini-step.done{background:var(--accent);}.mini-step.active{background:var(--accent2);}
-.field{margin-bottom:10px;}
-.field label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:500;}
-.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
-.field textarea{resize:none;}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--radius-sm);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
-.btn:active{transform:scale(0.97);}
-.btn-primary{background:var(--accent);color:#000;}.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
-.btn:disabled{opacity:0.4;cursor:not-allowed;}
-.btn-sm{padding:8px 14px;font-size:12px;width:auto;border-radius:8px;}
-.btn-row{display:flex;gap:8px;}.btn-row .btn-secondary{flex:0 0 76px;}
-.paste-area{width:100%;background:var(--surface2);border:2px dashed var(--border);border-radius:var(--radius-sm);padding:14px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:13px;min-height:160px;resize:none;outline:none;line-height:1.8;transition:border-color 0.2s;}
-.paste-area:focus{border-color:var(--accent);border-style:solid;}
-.paste-area::placeholder{color:var(--text3);}
-.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:12px;}
-.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s ease;width:0%;}
-.summary-exec{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.2);border-radius:var(--radius-sm);padding:14px;font-size:14px;line-height:1.9;margin-bottom:12px;}
-.decision-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.7;}
-.decision-item:last-child{border-bottom:none;}
-.action-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;}
-.action-task{font-size:14px;font-weight:600;margin-bottom:6px;line-height:1.6;}
-.action-meta{display:flex;gap:6px;flex-wrap:wrap;}
-.tag{font-size:11px;padding:2px 8px;border-radius:10px;font-family:monospace;}
-.tag-person{background:rgba(0,136,255,0.15);color:var(--accent2);}
-.tag-date{background:rgba(255,215,0,0.1);color:var(--gold);}
-.tag-high{background:rgba(255,71,87,0.15);color:var(--red);}
-.report-edit{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.9;color:var(--text);outline:none;min-height:260px;white-space:pre-wrap;font-family:'Sarabun',sans-serif;}
-.report-edit:focus{border-color:var(--accent);}
-.approve-zone{text-align:center;padding:20px;}
-.approve-zone .big-icon{font-size:44px;margin-bottom:10px;}
-.approved-badge{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:rgba(0,212,170,0.1);border-radius:var(--radius-sm);color:var(--accent);font-size:13px;font-weight:600;}
-.send-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
-.send-row:last-child{border-bottom:none;}
-.send-left{display:flex;align-items:center;gap:10px;}
-.send-lbl{font-size:14px;font-weight:600;}
-.send-desc{font-size:11px;color:var(--text2);}
-.toggle{width:44px;height:24px;border-radius:12px;background:var(--border);cursor:pointer;position:relative;border:none;transition:background 0.2s;flex-shrink:0;}
-.toggle.on{background:var(--accent);}
-.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform 0.2s;}
-.toggle.on::after{transform:translateX(20px);}
-.info-box{background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.8;}
-.warn-box{background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.2);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.8;}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.2s;}
-.modal-overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--border);width:100%;padding:20px;transform:translateY(100%);transition:transform 0.3s ease;}
-.modal-overlay.open .modal{transform:translateY(0);}
-.modal h3{font-size:16px;margin-bottom:4px;}
-.modal p{font-size:12px;color:var(--text2);margin-bottom:14px;}
-.modal-actions{display:flex;gap:10px;margin-top:14px;}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:10px 20px;font-size:13px;color:var(--text);z-index:999;transition:transform 0.3s ease;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+:root{
+  --bg:#0a0c10;--surface:#13161d;--surface2:#1c2029;--border:#2a2f3a;
+  --accent:#00d4aa;--accent2:#0088ff;--warn:#ff6b35;
+  --text:#eef1f6;--text2:#9aa3b2;--text3:#5a6373;
+  --red:#ff4757;--gold:#ffd700;--green:#00d4aa;
+  --r:16px;--r2:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body{padding-bottom:90px;}
+
+/* HEADER */
+.top{position:sticky;top:0;z-index:50;background:rgba(10,12,16,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:14px 18px;}
+.top h1{font-size:19px;font-weight:800;letter-spacing:-0.3px;}
+.top h1 span{color:var(--accent);}
+.top .sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* STEP PROGRESS */
+.steps{display:flex;gap:6px;padding:14px 18px 4px;}
+.step-dot{flex:1;height:5px;border-radius:3px;background:var(--border);transition:all .3s;}
+.step-dot.active{background:var(--accent);}
+.step-dot.done{background:var(--accent2);}
+.step-label{padding:2px 18px 12px;font-size:13px;color:var(--text2);font-weight:600;}
+
+main{padding:8px 18px 20px;max-width:560px;margin:0 auto;}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+.card h2{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card h2 .ico{font-size:20px;}
+
+/* FIELDS */
+.f{margin-bottom:14px;}
+.f:last-child{margin-bottom:0;}
+.f label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:600;}
+.f input,.f textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);padding:13px 14px;color:var(--text);font-family:inherit;font-size:16px;outline:none;transition:border-color .2s;}
+.f input:focus,.f textarea:focus{border-color:var(--accent);}
+.f textarea{resize:none;line-height:1.7;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* BIG BUTTONS - mobile friendly */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;border-radius:var(--r2);font-family:inherit;font-size:17px;font-weight:700;cursor:pointer;border:none;transition:transform .12s,opacity .2s;margin-top:4px;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:#00120e;}
+.btn-blue{background:var(--accent2);color:#fff;}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1.5px solid var(--border);}
+.btn-warn{background:var(--warn);color:#fff;}
+.btn:disabled{opacity:.4;}
+.btn-sm{padding:12px 16px;font-size:14px;}
+.btn-row{display:flex;gap:10px;}
+.btn-row .btn{margin-top:0;}
+.btn-back{flex:0 0 90px;background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);}
+
+/* BIG paste/text area */
+.bigpaste{width:100%;background:var(--surface2);border:2px dashed var(--border);border-radius:var(--r2);padding:16px;color:var(--text);font-family:inherit;font-size:15px;min-height:170px;resize:none;outline:none;line-height:1.7;}
+.bigpaste:focus{border-color:var(--accent);border-style:solid;}
+.bigpaste::placeholder{color:var(--text3);}
+
+/* HINT box */
+.hint{background:linear-gradient(135deg,rgba(0,212,170,.08),rgba(0,136,255,.06));border:1px solid rgba(0,212,170,.25);border-radius:var(--r2);padding:14px 16px;font-size:14px;line-height:1.85;color:var(--text2);margin-bottom:14px;}
+.hint b{color:var(--text);}
+.hint .big{color:var(--accent);font-weight:700;font-size:15px;}
+
+/* numbered steps in hint */
+.flow{counter-reset:s;margin:4px 0;}
+.flow .row{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);}
+.flow .row:last-child{border-bottom:none;}
+.flow .num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#00120e;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.flow .txt{font-size:14px;line-height:1.6;padding-top:2px;}
+.flow .txt b{color:var(--text);}
+
+/* RESULT cards */
+.exec{background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.2);border-radius:var(--r2);padding:16px;font-size:15px;line-height:1.9;}
+.item{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);font-size:15px;line-height:1.7;}
+.item:last-child{border-bottom:none;}
+.item .mk{flex-shrink:0;font-size:17px;}
+.act{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
+.act .task{font-size:15px;font-weight:700;margin-bottom:8px;line-height:1.5;}
+.act .meta{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{font-size:12px;padding:4px 10px;border-radius:20px;font-weight:600;}
+.chip.who{background:rgba(0,136,255,.16);color:#5cb3ff;}
+.chip.when{background:rgba(255,215,0,.13);color:var(--gold);}
+
+/* editable report */
+.report{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);padding:16px;font-size:15px;line-height:1.95;color:var(--text);outline:none;min-height:280px;white-space:pre-wrap;font-family:inherit;}
+.report:focus{border-color:var(--accent);}
+
+/* approve */
+.approve{text-align:center;padding:10px 0;}
+.approve .ic{font-size:50px;margin-bottom:8px;}
+.approve h3{font-size:18px;margin-bottom:6px;}
+.approve p{font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6;}
+.okbadge{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;background:rgba(0,212,170,.12);border-radius:var(--r2);color:var(--accent);font-size:15px;font-weight:700;}
+
+/* send toggles */
+.srow{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--border);}
+.srow:last-child{border-bottom:none;}
+.srow .l{display:flex;align-items:center;gap:13px;}
+.srow .l .e{font-size:26px;}
+.srow .l .t .a{font-size:15px;font-weight:700;}
+.srow .l .t .b{font-size:12px;color:var(--text2);}
+.tg{width:52px;height:30px;border-radius:16px;background:var(--border);position:relative;border:none;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.tg.on{background:var(--accent);}
+.tg::after{content:'';position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;}
+.tg.on::after{transform:translateX(22px);}
+
+/* autosave indicator */
+.saved{position:fixed;top:70px;right:14px;background:var(--surface);border:1px solid var(--accent);color:var(--accent);font-size:12px;padding:6px 12px;border-radius:20px;opacity:0;transition:opacity .3s;z-index:60;pointer-events:none;}
+.saved.show{opacity:1;}
+
+/* toast */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:13px 22px;font-size:15px;font-weight:600;z-index:999;transition:transform .3s;box-shadow:0 10px 40px rgba(0,0,0,.6);max-width:90%;text-align:center;}
 .toast.show{transform:translateX(-50%) translateY(0);}
-.toast.success{border-color:var(--accent);color:var(--accent);}
-.toast.error{border-color:var(--red);color:var(--red);}
-.spinner{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:spin 0.8s linear infinite;display:inline-block;}
-@keyframes spin{to{transform:rotate(360deg);}}
+.toast.ok{border-color:var(--accent);color:var(--accent);}
+.toast.err{border-color:var(--red);color:var(--red);}
+
 .hidden{display:none!important;}
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.spin{width:22px;height:22px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* help accordion */
+.acc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;}
+.acc summary{padding:15px 16px;font-size:15px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+.acc summary::-webkit-details-marker{display:none;}
+.acc summary::after{content:'+';font-size:22px;color:var(--text2);}
+.acc[open] summary::after{content:'−';}
+.acc .body{padding:0 16px 16px;font-size:14px;line-height:1.9;color:var(--text2);}
+.acc .body b{color:var(--text);}
+
+/* bottom nav */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,12,16,.96);backdrop-filter:blur(14px);border-top:1px solid var(--border);display:flex;z-index:50;}
+.bnav button{flex:1;background:none;border:none;color:var(--text3);padding:12px 4px 16px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bnav button.active{color:var(--accent);}
+.bnav button .bi{font-size:22px;}
+
+.page{display:none;}
+.page.active{display:block;}
 </style>
 </head>
 <body>
 
-<div class="nav-tabs">
-  <button class="nav-tab active" onclick="switchTab('meeting')"><span class="tab-icon">🤖</span>ประชุม</button>
-  <button class="nav-tab" onclick="switchTab('help')"><span class="tab-icon">📋</span>วิธีใช้</button>
+<div class="saved" id="saved">✓ บันทึกแล้ว</div>
+
+<div class="top">
+  <h1>Meeting<span>AI</span></h1>
+  <div class="sub" id="topSub">บันทึกการประชุม → สรุป → ส่งทีม</div>
 </div>
 
-<!-- TAB 1: MEETING -->
-<div class="tab-page active" id="tab-meeting">
-  <div class="section-header">
-    <div class="section-title">Meeting<span style="color:var(--accent)">AI</span> <span style="font-size:12px;color:var(--text3)">v5 Free</span></div>
+<!-- ============ MAIN FLOW PAGE ============ -->
+<div class="page active" id="view-flow">
+  <div class="steps">
+    <div class="step-dot active" id="d0"></div>
+    <div class="step-dot" id="d1"></div>
+    <div class="step-dot" id="d2"></div>
+    <div class="step-dot" id="d3"></div>
+    <div class="step-dot" id="d4"></div>
   </div>
+  <div class="step-label" id="stepLabel">ขั้นที่ 1 — ข้อมูลการประชุม</div>
+
   <main>
-    <div class="mini-steps">
-      <div class="mini-step active" id="ms0"></div>
-      <div class="mini-step" id="ms1"></div>
-      <div class="mini-step" id="ms2"></div>
-      <div class="mini-step" id="ms3"></div>
-      <div class="mini-step" id="ms4"></div>
-    </div>
-
-    <!-- PAGE 0: SETUP -->
-    <div id="mpage0">
+    <!-- STEP 0: INFO -->
+    <div id="s0">
       <div class="card">
-        <div class="card-title"><span class="icon">📋</span>ข้อมูลการประชุม</div>
-        <div class="field">
+        <h2><span class="ico">📋</span>ข้อมูลการประชุม</h2>
+        <div class="f">
           <label>ชื่อการประชุม</label>
-          <input id="mTitle" type="text" placeholder="เช่น ประชุม C-UAS Phase 2">
+          <input id="iTitle" placeholder="เช่น ประชุม C-UAS Phase 2">
         </div>
-        <div class="row2">
-          <div class="field"><label>วันที่</label><input id="mDate" type="date"></div>
-          <div class="field"><label>เวลา</label><input id="mTime" type="time"></div>
+        <div class="two">
+          <div class="f"><label>วันที่</label><input id="iDate" type="date"></div>
+          <div class="f"><label>เวลา</label><input id="iTime" type="time"></div>
         </div>
-        <div class="field">
+        <div class="f">
           <label>สถานที่</label>
-          <input id="mLocation" type="text" placeholder="ห้องประชุม / Zoom">
+          <input id="iLoc" placeholder="ห้องประชุม / Zoom">
         </div>
-        <div class="field">
+        <div class="f">
           <label>ผู้เข้าร่วม</label>
-          <textarea id="mAttendees" style="min-height:60px" placeholder="นาย Atipat (CEO), Mr. Chen, Col. Smith"></textarea>
+          <textarea id="iAtt" style="min-height:70px" placeholder="คุณ Atipat, คุณเฉิน, พ.อ. สมิธ"></textarea>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="mGoPage(1)">ถัดไป — อัดเสียง →</button>
+      <button class="btn btn-primary" onclick="go(1)">ต่อไป →</button>
     </div>
 
-    <!-- PAGE 1: INPUT -->
-    <div id="mpage1" class="hidden">
+    <!-- STEP 1: PASTE TRANSCRIPT -->
+    <div id="s1" class="hidden">
       <div class="card">
-        <div class="card-title"><span class="icon">🎙</span>Notta → Claude.ai</div>
-        <div class="info-box">
-          <strong style="color:var(--accent)">1. Notta อัดเสียงประชุม 75 นาที</strong><br>
-          <strong style="color:var(--accent)">2. Copy transcript จาก Notta</strong><br>
-          <strong style="color:var(--accent)">3. เปิด Claude.ai วาง prompt → copy ผลลัพธ์</strong><br>
-          <strong style="color:var(--accent)">4. วาง JSON result ที่นี่ ↓</strong>
+        <h2><span class="ico">🎙️</span>วางบทพูดจาก Notta</h2>
+        <div class="hint">
+          <b>จากเครื่องที่ 1 (Notta):</b><br>
+          อัดเสียงเสร็จ → กด Export → Copy ข้อความ<br>
+          แล้วมา<span class="big">วางในช่องนี้</span> 👇
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="icon">📝</span>Claude.ai Prompt</div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;font-size:12px;font-family:monospace;line-height:1.6;color:var(--text2);overflow-x:auto;">
-ช่วยสรุปการประชุมนี้เป็น JSON:<br>
-{<br>
-  "executive_summary": "สรุป 3-5 บรรทัด",<br>
-  "key_decisions": ["มติ 1", "มติ 2"],<br>
-  "action_items": [<br>
-    {"task": "งาน", "assignee": "ผู้รับผิดชอบ", "deadline": "2026-05-25"}<br>
-  ],<br>
-  "open_issues": ["ประเด็นค้าง"],<br>
-  "full_report": "รายงานเต็ม"<br>
-}<br>
-<br>
-[paste transcript ของคุณ]
-        </div>
-        <button class="btn btn-secondary" onclick="copyPrompt()">📋 Copy Prompt</button>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="icon">📝</span>วาง JSON Result จาก Claude.ai</div>
-        <textarea class="paste-area" id="mTranscript" placeholder='วาง JSON จาก Claude.ai ตรงนี้ เช่น:
-{
-  "executive_summary": "...",
-  "key_decisions": ["..."],
-  "action_items": [{"task": "...", "assignee": "...", "deadline": "2026-05-25"}],
-  "open_issues": ["..."],
-  "full_report": "..."
-}'></textarea>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-          <span id="charCount" style="font-size:11px;color:var(--text3)">0 ตัวอักษร</span>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('mTranscript').value='';updateCharCount()">ล้าง</button>
-            <button class="btn btn-secondary btn-sm" onclick="pasteClip()">📋 วาง</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-secondary" onclick="mGoPage(0)">← กลับ</button>
-        <button class="btn btn-primary" onclick="doSummarize()">✅ โหลด JSON →</button>
-      </div>
-    </div>
-
-    <!-- PAGE 2: RESULT -->
-    <div id="mpage2" class="hidden">
-      <div id="resultBlock">
-        <div class="card">
-          <div class="card-title"><span class="icon">📊</span>สรุปสาระสำคัญ</div>
-          <div class="summary-exec" id="rExec"></div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span class="icon">✅</span>มติที่ประชุม</div>
-          <div id="rDecisions"></div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span class="icon">⚡</span>Action Items</div>
-          <div id="rActions"></div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span class="icon">❓</span>ประเด็นค้าง</div>
-          <div id="rIssues"></div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-secondary" onclick="mGoPage(1)">← กลับ</button>
-          <button class="btn btn-primary" onclick="mGoPage(3)">รับรอง →</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PAGE 3: APPROVE -->
-    <div id="mpage3" class="hidden">
-      <div class="card">
-        <div class="card-title"><span class="icon">📝</span>รายงานฉบับเต็ม (แก้ไขได้)</div>
-        <div class="report-edit" id="reportEdit" contenteditable="true"></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:5px">แตะข้อความเพื่อแก้ไขสด</div>
-      </div>
-      <div class="card">
-        <div id="approveZone" class="approve-zone">
-          <div class="big-icon">📋</div>
-          <h3>รับรองรายงานการประชุม</h3>
-          <p>ตรวจสอบแล้ว กดรับรองเพื่อล็อครายงาน</p>
-          <button class="btn btn-primary" onclick="doApprove()">✅ รับรองรายงาน</button>
-        </div>
-        <div class="approved-badge hidden" id="approvedBadge">
-          ✅ รับรองแล้ว — <span id="approveTime"></span>
+        <textarea class="bigpaste" id="iTranscript" placeholder="แตะที่นี่ แล้วกดวาง (paste) บทพูดที่ copy จาก Notta มา&#10;&#10;รองรับ ไทย / English / 中文 ผสมกันได้"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+          <span id="tCount" style="font-size:13px;color:var(--text3);">0 ตัวอักษร</span>
+          <button class="btn btn-ghost btn-sm" style="width:auto;margin:0;" onclick="pasteTranscript()">📋 วางจากคลิปบอร์ด</button>
         </div>
       </div>
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="mGoPage(2)">← กลับ</button>
-        <button class="btn btn-primary" id="toSendBtn" onclick="mGoPage(4)" disabled>ส่ง Follow-up →</button>
+        <button class="btn btn-back" onclick="go(0)">← กลับ</button>
+        <button class="btn btn-primary" onclick="go(2)">ต่อไป →</button>
       </div>
     </div>
 
-    <!-- PAGE 4: SEND -->
-    <div id="mpage4" class="hidden">
+    <!-- STEP 2: AI SUMMARIZE via Claude.ai -->
+    <div id="s2" class="hidden">
       <div class="card">
-        <div class="card-title"><span class="icon">🚀</span>ส่ง Follow-up</div>
-        <div class="field">
-          <label>อีเมลผู้รับ (คั่นด้วย ,)</label>
-          <input id="emailTo" type="email" placeholder="team@trident1995.co.th">
-        </div>
-        <div class="send-row">
-          <div class="send-left">
-            <div style="font-size:22px">📧</div>
-            <div><div class="send-lbl">Email รายงาน</div><div class="send-desc">เปิด Gmail / Mail app</div></div>
-          </div>
-          <button class="toggle on" id="togEmail" onclick="this.classList.toggle('on')"></button>
-        </div>
-        <div class="send-row">
-          <div class="send-left">
-            <div style="font-size:22px">📅</div>
-            <div><div class="send-lbl">Google Calendar</div><div class="send-desc">สร้าง reminder แต่ละ Action Item</div></div>
-          </div>
-          <button class="toggle on" id="togCal" onclick="this.classList.toggle('on')"></button>
-        </div>
-        <div class="send-row">
-          <div class="send-left">
-            <div style="font-size:22px">💚</div>
-            <div><div class="send-lbl">LINE แจ้งทีม</div><div class="send-desc">ส่งสรุปย่อทาง LINE</div></div>
-          </div>
-          <button class="toggle" id="togLine" onclick="this.classList.toggle('on')"></button>
+        <h2><span class="ico">🤖</span>ให้ AI สรุป (ฟรี)</h2>
+        <div class="flow">
+          <div class="row"><div class="num">1</div><div class="txt">กดปุ่ม <b>"เปิด Claude แล้ววางให้เลย"</b> ด้านล่าง<br><span style="color:var(--text3);font-size:13px;">(ระบบ copy คำสั่ง+บทพูดให้อัตโนมัติ)</span></div></div>
+          <div class="row"><div class="num">2</div><div class="txt">พอ Claude เปิดขึ้นมา <b>กดค้างในช่องพิมพ์ → วาง → ส่ง</b></div></div>
+          <div class="row"><div class="num">3</div><div class="txt">Claude สรุปเสร็จ → <b>copy คำตอบทั้งหมด</b></div></div>
+          <div class="row"><div class="num">4</div><div class="txt">กลับมาแอปนี้ → <b>วางในช่องล่าง</b> → กดสรุป</div></div>
         </div>
       </div>
 
-      <button class="btn btn-primary" onclick="doSendAll()">🚀 ส่งทุกอย่างเลย</button>
+      <button class="btn btn-blue" onclick="openClaude()">📋 เปิด Claude แล้ววางให้เลย</button>
 
-      <div class="hidden" id="doneBlock">
-        <div class="card" style="text-align:center;padding:32px 20px;margin-top:12px">
-          <div style="font-size:52px;margin-bottom:12px">🎉</div>
-          <h3 style="font-size:18px;margin-bottom:6px">เสร็จสมบูรณ์!</h3>
-          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">ส่งรายงาน + สร้าง Calendar แล้ว</p>
-          <button class="btn btn-secondary" style="max-width:180px;margin:0 auto" onclick="resetMeeting()">➕ ประชุมใหม่</button>
+      <div class="card" style="margin-top:14px;">
+        <h2><span class="ico">📥</span>วางคำตอบจาก Claude</h2>
+        <textarea class="bigpaste" id="iResult" placeholder="แตะที่นี่ แล้ววาง (paste) คำตอบทั้งหมดจาก Claude มา&#10;&#10;ระบบจะดึงสรุป + มติ + งานที่ต้องทำ ให้อัตโนมัติ"></textarea>
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="pasteResult()">📋 วางจากคลิปบอร์ด</button>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="go(1)">← กลับ</button>
+        <button class="btn btn-primary" onclick="parseResult()">✅ สรุปเลย →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: REVIEW + APPROVE -->
+    <div id="s3" class="hidden">
+      <div class="card">
+        <h2><span class="ico">📊</span>สรุปการประชุม</h2>
+        <div class="exec" id="rExec">—</div>
+      </div>
+      <div class="card" id="cDec">
+        <h2><span class="ico">✅</span>มติที่ประชุม</h2>
+        <div id="rDec"></div>
+      </div>
+      <div class="card" id="cAct">
+        <h2><span class="ico">⚡</span>งานที่ต้องทำ</h2>
+        <div id="rAct"></div>
+      </div>
+      <div class="card" id="cIss">
+        <h2><span class="ico">❓</span>ประเด็นค้าง</h2>
+        <div id="rIss"></div>
+      </div>
+      <div class="card">
+        <h2><span class="ico">📝</span>รายงานฉบับเต็ม <span style="font-size:12px;color:var(--text3);font-weight:400;">(แตะเพื่อแก้)</span></h2>
+        <div class="report" id="rFull" contenteditable="true"></div>
+      </div>
+      <div class="card">
+        <div class="approve" id="apZone">
+          <div class="ic">📋</div>
+          <h3>รับรองรายงาน</h3>
+          <p>ตรวจสอบความถูกต้องแล้ว<br>กดรับรองเพื่อล็อกและส่งต่อ</p>
+          <button class="btn btn-primary" onclick="approve()">✅ รับรองรายงาน</button>
         </div>
+        <div class="okbadge hidden" id="apBadge">✅ รับรองแล้ว เมื่อ <span id="apTime"></span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="go(2)">← กลับ</button>
+        <button class="btn btn-primary" id="toSend" onclick="go(4)" disabled>ส่งทีม →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: SEND -->
+    <div id="s4" class="hidden">
+      <div class="card">
+        <h2><span class="ico">🚀</span>ส่งให้ทีม</h2>
+        <div class="f">
+          <label>อีเมลผู้รับ (คั่นด้วยจุลภาค ,)</label>
+          <input id="iEmail" type="email" placeholder="team@trident1995.co.th">
+        </div>
+        <div class="srow">
+          <div class="l"><div class="e">📧</div><div class="t"><div class="a">ส่งอีเมลรายงาน</div><div class="b">เปิดแอป Gmail พร้อมเนื้อหา</div></div></div>
+          <button class="tg on" id="tgMail" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="srow">
+          <div class="l"><div class="e">📅</div><div class="t"><div class="a">เพิ่มลง Google ปฏิทิน</div><div class="b">สร้างเตือนแต่ละงานที่ต้องทำ</div></div></div>
+          <button class="tg on" id="tgCal" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="srow">
+          <div class="l"><div class="e">💚</div><div class="t"><div class="a">แชร์เข้า LINE</div><div class="b">ส่งสรุปย่อให้กลุ่มทีม</div></div></div>
+          <button class="tg" id="tgLine" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="sendBtn" onclick="sendAll()">🚀 ส่งทั้งหมด</button>
+
+      <div class="hidden" id="done">
+        <div class="card" style="text-align:center;padding:34px 20px;margin-top:14px;">
+          <div style="font-size:56px;margin-bottom:12px;">🎉</div>
+          <h3 style="font-size:20px;margin-bottom:8px;">เสร็จเรียบร้อย!</h3>
+          <p style="font-size:15px;color:var(--text2);margin-bottom:18px;line-height:1.6;">ส่งรายงานและสร้างปฏิทินแล้ว</p>
+          <button class="btn btn-ghost" onclick="resetAll()">➕ เริ่มประชุมใหม่</button>
+        </div>
+      </div>
+      <div class="btn-row" id="sendBack" style="margin-top:10px;">
+        <button class="btn btn-back" onclick="go(3)">← กลับ</button>
       </div>
     </div>
   </main>
 </div>
 
-<!-- TAB 2: HELP -->
-<div class="tab-page" id="tab-help">
-<main style="padding-top:20px;">
-  <div class="card">
-    <div class="card-title"><span class="icon">📖</span>วิธีใช้ MeetingAI v5 Free</div>
-    <div style="font-size:13px;line-height:2;color:var(--text2)">
-      <strong style="color:var(--text)">1. ตั้งค่าข้อมูลประชุม</strong><br>
-      ชื่อ, วันที่, เวลา, สถานที่, ผู้เข้าร่วม<br><br>
-      
-      <strong style="color:var(--text)">2. อัดเสียง Notta (75 นาที)</strong><br>
-      เปิด Notta → Start Recording → ประชุม<br><br>
-      
-      <strong style="color:var(--text)">3. ถอดข้อความ</strong><br>
-      Notta → Export → Copy transcript<br><br>
-      
-      <strong style="color:var(--text)">4. Claude.ai Summarize</strong><br>
-      • เปิด https://claude.ai<br>
-      • Copy prompt ตรงนี้ (ปุ่ม Copy Prompt)<br>
-      • Paste transcript<br>
-      • Claude จะ summarize → Copy JSON ผลลัพธ์<br><br>
-      
-      <strong style="color:var(--text)">5. วาง JSON ที่นี่</strong><br>
-      paste ตรง "วาง JSON Result จาก Claude.ai"<br><br>
-      
-      <strong style="color:var(--text)">6. รับรอง</strong><br>
-      ตรวจสอบ → แก้ไขได้ → กด "รับรองรายงาน"<br><br>
-      
-      <strong style="color:var(--text)">7. ส่ง</strong><br>
-      Email + Calendar + LINE auto
+<!-- ============ HELP PAGE ============ -->
+<div class="page" id="view-help">
+  <main style="padding-top:18px;">
+    <div class="card">
+      <h2><span class="ico">📖</span>วิธีใช้แบบ 2 เครื่อง</h2>
+      <div class="hint" style="margin-bottom:0;">
+        <b>เครื่องที่ 1</b> = อัดเสียง (Notta)<br>
+        <b>เครื่องที่ 2</b> = เปิดเว็บนี้ จด + ทำรายงาน<br>
+        <span style="color:var(--text3);font-size:13px;">ทั้ง 2 เครื่องใช้ Gmail เดียวกัน ข้อมูลซิงค์อัตโนมัติ</span>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title"><span class="icon">🎯</span>Timeline ประชุม</div>
-    <div style="font-size:13px;color:var(--text2);line-height:2">
-      <strong style="color:var(--accent)">0 นาที:</strong> เริ่ม Notta อัด<br>
-      <strong style="color:var(--accent)">75 นาที:</strong> หยุด Notta → Copy<br>
-      <strong style="color:var(--accent)">78 นาที:</strong> Claude.ai summarize (2 นาที)<br>
-      <strong style="color:var(--accent)">82 นาที:</strong> วาง JSON → รับรอง<br>
-      <strong style="color:var(--accent)">85 นาที:</strong> ส่ง Email + Calendar<br>
-      <strong style="color:var(--accent)">90 นาที:</strong> ✅ เสร็จ
-    </div>
-  </div>
+    <details class="acc" open>
+      <summary>🕐 ลำดับเวลาในการประชุม</summary>
+      <div class="body">
+        <b>เริ่ม:</b> เครื่อง 1 กด Notta อัด<br>
+        <b>นาที 75:</b> หยุดอัด → Notta ถอดข้อความ<br>
+        <b>นาที 78:</b> Copy บทพูด → เครื่อง 2 วางในแอป<br>
+        <b>นาที 80:</b> กดเปิด Claude → วาง → สรุป<br>
+        <b>นาที 83:</b> copy คำตอบ → วางกลับแอป<br>
+        <b>นาที 85:</b> ตรวจ → รับรอง → ส่งทีม<br>
+        <b>นาที 88:</b> ✅ เสร็จก่อนเลิกประชุม
+      </div>
+    </details>
 
-  <div class="card">
-    <div class="card-title"><span class="icon">💡</span>ข้อควรรู้</div>
-    <div style="font-size:13px;color:var(--text2);line-height:2">
-      ✅ Claude.ai ฟรี ไม่เสียเงิน<br>
-      ✅ ใช้ได้ offline กับ Google Docs<br>
-      ✅ Action Items auto-sync Calendar<br>
-      ✅ JSON editable ก่อนรับรอง<br>
-      ⚠️ ต้องเบราว์เซอร์ 2 หน้า (Notta + Claude)<br>
-      ⚠️ Copy prompt อย่างถูกต้อง
-    </div>
-  </div>
-</main>
+    <details class="acc">
+      <summary>🤖 ทำไมต้องเปิด Claude เอง?</summary>
+      <div class="body">
+        เวอร์ชันฟรีจะ <b>copy คำสั่งให้อัตโนมัติ</b> แล้วเปิด Claude.ai ให้ — คุณแค่วางแล้วส่ง<br><br>
+        ถ้าอยากให้ <b>กดปุ่มเดียวจบ</b> ไม่ต้องสลับหน้าจอ ต้องเติมเครดิต Claude API (เริ่มต้น $5) แล้วบอกผม เดี๋ยวอัปเกรดให้
+      </div>
+    </details>
+
+    <details class="acc">
+      <summary>💾 ข้อมูลหายไหมถ้าปิดเว็บ?</summary>
+      <div class="body">
+        <b>ไม่หาย</b> — ระบบบันทึกอัตโนมัติในเครื่อง ปิดแล้วเปิดใหม่ข้อมูลยังอยู่<br>
+        ถ้าอยากเริ่มใหม่ กดปุ่ม "เริ่มประชุมใหม่" ในขั้นสุดท้าย
+      </div>
+    </details>
+
+    <details class="acc">
+      <summary>📋 Copy/วาง ทำยังไงบนมือถือ?</summary>
+      <div class="body">
+        <b>Copy:</b> กดค้างที่ข้อความ → ลากเลือก → กด "คัดลอก"<br>
+        <b>วาง:</b> แตะในช่อง → กดค้าง → กด "วาง"<br>
+        หรือใช้ปุ่ม "📋 วางจากคลิปบอร์ด" ในแอป
+      </div>
+    </details>
+
+    <details class="acc">
+      <summary>🔗 บันทึกแอปไว้หน้าจอหลัก</summary>
+      <div class="body">
+        เปิดเมนู Chrome (จุด 3 จุดมุมขวาบน) → <b>"เพิ่มลงในหน้าจอหลัก"</b><br>
+        จะได้ไอคอนเหมือนแอปจริง เปิดได้เร็ว ไม่ต้องพิมพ์ URL
+      </div>
+    </details>
+  </main>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="active" id="nav-flow" onclick="nav('flow')"><span class="bi">📝</span>ทำรายงาน</button>
+  <button id="nav-help" onclick="nav('help')"><span class="bi">❓</span>วิธีใช้</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-let summaryData = null;
-let reportText = '';
-let approved = false;
+// ===== STATE with auto-save =====
+const LS = 'meetingai_v6';
+let state = {step:0, info:{}, transcript:'', result:'', data:null, report:'', approved:false};
 
+function load(){
+  try{ const s = localStorage.getItem(LS); if(s) state = {...state, ...JSON.parse(s)}; }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem(LS, JSON.stringify(state)); flashSaved(); }catch(e){}
+}
+let savedTimer;
+function flashSaved(){
+  const el = document.getElementById('saved');
+  el.classList.add('show');
+  clearTimeout(savedTimer);
+  savedTimer = setTimeout(()=>el.classList.remove('show'), 1200);
+}
+
+// ===== INIT =====
 window.onload = ()=>{
+  load();
   const now = new Date();
-  document.getElementById('mDate').value = now.toISOString().split('T')[0];
-  document.getElementById('mTime').value = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  document.getElementById('mTranscript').addEventListener('input', updateCharCount);
+  // restore or default
+  document.getElementById('iTitle').value = state.info.title||'';
+  document.getElementById('iDate').value = state.info.date||now.toISOString().split('T')[0];
+  document.getElementById('iTime').value = state.info.time||(now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0'));
+  document.getElementById('iLoc').value = state.info.loc||'';
+  document.getElementById('iAtt').value = state.info.att||'';
+  document.getElementById('iTranscript').value = state.transcript||'';
+  document.getElementById('iResult').value = state.result||'';
+  document.getElementById('iEmail').value = state.info.email||'';
+  updateTCount();
+
+  // auto-save on input
+  ['iTitle','iDate','iTime','iLoc','iAtt','iEmail'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', ()=>{ collectInfo(); save(); });
+  });
+  document.getElementById('iTranscript').addEventListener('input', ()=>{ state.transcript=document.getElementById('iTranscript').value; updateTCount(); save(); });
+  document.getElementById('iResult').addEventListener('input', ()=>{ state.result=document.getElementById('iResult').value; save(); });
+
+  // restore data view if exists
+  if(state.data){ renderData(state.data); }
+  if(state.approved){ markApproved(true); }
+
+  go(state.step||0, true);
 };
 
-function switchTab(name){
-  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  const tabs = ['meeting','help'];
-  document.querySelectorAll('.nav-tab')[tabs.indexOf(name)].classList.add('active');
+function collectInfo(){
+  state.info = {
+    title:document.getElementById('iTitle').value,
+    date:document.getElementById('iDate').value,
+    time:document.getElementById('iTime').value,
+    loc:document.getElementById('iLoc').value,
+    att:document.getElementById('iAtt').value,
+    email:document.getElementById('iEmail').value,
+  };
+}
+
+// ===== NAV between flow/help =====
+function nav(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+p).classList.add('active');
+  document.getElementById('nav-flow').classList.toggle('active', p==='flow');
+  document.getElementById('nav-help').classList.toggle('active', p==='help');
   window.scrollTo(0,0);
 }
 
-function mGoPage(n){
-  for(let i=0;i<5;i++) document.getElementById('mpage'+i).classList.add('hidden');
-  document.getElementById('mpage'+n).classList.remove('hidden');
+// ===== STEP navigation =====
+const LABELS = ['ขั้นที่ 1 — ข้อมูลการประชุม','ขั้นที่ 2 — วางบทพูด','ขั้นที่ 3 — ให้ AI สรุป','ขั้นที่ 4 — ตรวจ + รับรอง','ขั้นที่ 5 — ส่งทีม'];
+function go(n, silent){
+  // validation
+  if(!silent){
+    if(n===2 && !document.getElementById('iTranscript').value.trim()){ toast('กรุณาวางบทพูดก่อน','err'); return; }
+  }
+  state.step = n; save();
+  for(let i=0;i<5;i++) document.getElementById('s'+i).classList.add('hidden');
+  document.getElementById('s'+n).classList.remove('hidden');
   for(let i=0;i<5;i++){
-    const s = document.getElementById('ms'+i);
-    s.className = 'mini-step' + (i<n?' done':i===n?' active':'');
+    const d=document.getElementById('d'+i);
+    d.className='step-dot'+(i<n?' done':i===n?' active':'');
   }
+  document.getElementById('stepLabel').textContent = LABELS[n];
   window.scrollTo(0,0);
 }
 
-function updateCharCount(){
-  const n = document.getElementById('mTranscript').value.length;
-  document.getElementById('charCount').textContent = n.toLocaleString()+' ตัวอักษร';
+// ===== Transcript count =====
+function updateTCount(){
+  const n=document.getElementById('iTranscript').value.length;
+  document.getElementById('tCount').textContent = n.toLocaleString()+' ตัวอักษร';
 }
 
-function copyPrompt(){
-  const prompt = `ช่วยสรุปการประชุมนี้เป็น JSON:
+// ===== Paste helpers =====
+async function pasteTranscript(){
+  try{ const t=await navigator.clipboard.readText(); document.getElementById('iTranscript').value=t; state.transcript=t; updateTCount(); save(); toast('วางแล้ว','ok'); }
+  catch(e){ toast('แตะค้างในช่อง แล้วเลือก "วาง"','err'); }
+}
+async function pasteResult(){
+  try{ const t=await navigator.clipboard.readText(); document.getElementById('iResult').value=t; state.result=t; save(); toast('วางแล้ว','ok'); }
+  catch(e){ toast('แตะค้างในช่อง แล้วเลือก "วาง"','err'); }
+}
+
+// ===== Open Claude.ai with auto-copied prompt =====
+function openClaude(){
+  collectInfo();
+  const t = document.getElementById('iTranscript').value.trim();
+  if(!t){ toast('กรุณาวางบทพูดในขั้นที่ 2 ก่อน','err'); return; }
+  const i = state.info;
+  const prompt = `ช่วยสรุปการประชุมนี้ให้เป็นภาษาไทยทางการ แล้วตอบกลับเป็น JSON เท่านั้น (ไม่ต้องมีคำอธิบายอื่น) ตามรูปแบบนี้:
+
 {
-  "executive_summary": "สรุป 3-5 บรรทัด",
-  "key_decisions": ["มติ 1", "มติ 2"],
+  "executive_summary": "สรุปภาพรวม 3-5 บรรทัด",
+  "key_decisions": ["มติที่ 1", "มติที่ 2"],
   "action_items": [
-    {"task": "งาน", "assignee": "ผู้รับผิดชอบ", "deadline": "2026-05-25"}
+    {"task": "งานที่ต้องทำ", "assignee": "ผู้รับผิดชอบ", "deadline": "2026-06-15"}
   ],
-  "open_issues": ["ประเด็นค้าง"],
-  "full_report": "รายงานเต็ม"
+  "open_issues": ["ประเด็นที่ยังค้างอยู่"],
+  "full_report": "รายงานการประชุมฉบับเต็ม เขียนเป็นภาษาทางการ มีหัวข้อ วันที่ ผู้เข้าร่วม สรุป มติ และงานที่ต้องทำ"
 }
 
-[paste transcript ของคุณ]`;
-  navigator.clipboard.writeText(prompt).then(()=>showToast('📋 Copy Prompt แล้ว','success')).catch(e=>showToast('❌ Copy ล้มเหลว','error'));
+ข้อมูลการประชุม:
+- ชื่อ: ${i.title||'-'}
+- วันที่: ${i.date||'-'} เวลา: ${i.time||'-'}
+- สถานที่: ${i.loc||'-'}
+- ผู้เข้าร่วม: ${i.att||'-'}
+
+บทพูดการประชุม:
+"""
+${t}
+"""`;
+
+  // copy prompt to clipboard
+  const done = ()=>{
+    toast('คัดลอกคำสั่งแล้ว! กำลังเปิด Claude...','ok');
+    setTimeout(()=>{ window.open('https://claude.ai/new','_blank'); }, 700);
+  };
+  navigator.clipboard.writeText(prompt).then(done).catch(()=>{
+    // fallback copy
+    const ta=document.createElement('textarea'); ta.value=prompt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }
+    catch(e){ toast('คัดลอกไม่ได้ ลองใหม่','err'); }
+    document.body.removeChild(ta);
+  });
 }
 
-async function pasteClip(){
-  try{
-    const t = await navigator.clipboard.readText();
-    document.getElementById('mTranscript').value = t;
-    updateCharCount();
-    showToast('📋 วางแล้ว','success');
-  }catch(e){
-    showToast('⚠️ แตะค้างในช่องข้อความ → เลือก "วาง"','error');
+// ===== Parse Claude's answer (robust JSON extraction) =====
+function parseResult(){
+  const raw = document.getElementById('iResult').value.trim();
+  if(!raw){ toast('กรุณาวางคำตอบจาก Claude ก่อน','err'); return; }
+  let data = extractJSON(raw);
+  if(!data){
+    // fallback: treat whole thing as report
+    data = { executive_summary: raw.slice(0,300), key_decisions:[], action_items:[], open_issues:[], full_report: raw };
+    toast('ดึง JSON ไม่ได้ ใช้เป็นรายงานดิบแทน','err');
   }
+  state.data = data; save();
+  renderData(data);
+  go(3);
 }
 
-function doSummarize(){
-  const txt = document.getElementById('mTranscript').value.trim();
-  if(!txt){showToast('❌ กรุณาวาง JSON ก่อน','error');return;}
-  try{
-    summaryData = JSON.parse(txt);
-    renderResult(summaryData);
-    mGoPage(2);
-  }catch(e){
-    showToast('❌ JSON ผิดรูปแบบ: '+e.message,'error');
+function extractJSON(text){
+  // try direct
+  try{ return JSON.parse(text); }catch(e){}
+  // strip code fences
+  let t = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+  try{ return JSON.parse(t); }catch(e){}
+  // find first { ... last }
+  const a = t.indexOf('{'); const b = t.lastIndexOf('}');
+  if(a>=0 && b>a){
+    let chunk = t.slice(a,b+1);
+    try{ return JSON.parse(chunk); }catch(e){}
   }
+  return null;
 }
 
-function renderResult(d){
-  document.getElementById('rExec').textContent = d.executive_summary||'-';
-  document.getElementById('rDecisions').innerHTML = (d.key_decisions||[]).map(dec=>`<div class="decision-item"><span style="color:var(--accent)">✅</span><span>${dec}</span></div>`).join('');
-  document.getElementById('rActions').innerHTML = (d.action_items||[]).map(a=>`<div class="action-card"><div class="action-task">${a.task}</div><div class="action-meta"><span class="tag tag-person">👤 ${a.assignee||'-'}</span><span class="tag tag-date">📅 ${a.deadline||'-'}</span></div></div>`).join('');
-  document.getElementById('rIssues').innerHTML = (d.open_issues||[]).map(i=>`<div class="decision-item"><span style="color:var(--accent3)">❓</span><span>${i}</span></div>`).join('');
-  reportText = d.full_report || 'รายงานการประชุม\n\n'+d.executive_summary+'\n\nมติ:\n'+(d.key_decisions||[]).join('\n')+'\n\nAction Items:\n'+(d.action_items||[]).map(a=>a.task+' ('+a.assignee+', '+a.deadline+')').join('\n');
-  document.getElementById('reportEdit').textContent = reportText;
+// ===== Render =====
+function renderData(d){
+  document.getElementById('rExec').textContent = d.executive_summary||'—';
+  document.getElementById('rDec').innerHTML = (d.key_decisions||[]).map(x=>`<div class="item"><span class="mk">✅</span><span>${esc(x)}</span></div>`).join('') || '<div style="color:var(--text3);font-size:14px;">—</div>';
+  document.getElementById('rAct').innerHTML = (d.action_items||[]).map(a=>`<div class="act"><div class="task">${esc(a.task||'')}</div><div class="meta"><span class="chip who">👤 ${esc(a.assignee||'-')}</span><span class="chip when">📅 ${esc(a.deadline||'-')}</span></div></div>`).join('') || '<div style="color:var(--text3);font-size:14px;">—</div>';
+  document.getElementById('rIss').innerHTML = (d.open_issues||[]).map(x=>`<div class="item"><span class="mk">❓</span><span>${esc(x)}</span></div>`).join('') || '<div style="color:var(--text3);font-size:14px;">—</div>';
+  const rep = d.full_report || buildReport(d);
+  state.report = rep;
+  document.getElementById('rFull').textContent = rep;
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildReport(d){
+  const i=state.info;
+  return `รายงานการประชุม\n${i.title||''}\nวันที่ ${i.date||''} เวลา ${i.time||''} น.\nสถานที่ ${i.loc||''}\n\nผู้เข้าร่วม: ${i.att||''}\n\n— สรุป —\n${d.executive_summary||''}\n\n— มติ —\n${(d.key_decisions||[]).map((x,n)=>`${n+1}. ${x}`).join('\n')}\n\n— งานที่ต้องทำ —\n${(d.action_items||[]).map((a,n)=>`${n+1}. ${a.task} (${a.assignee||'-'}, ${a.deadline||'-'})`).join('\n')}`;
 }
 
-function doApprove(){
-  approved = true;
-  reportText = document.getElementById('reportEdit').textContent;
-  document.getElementById('approveZone').classList.add('hidden');
-  document.getElementById('approvedBadge').classList.remove('hidden');
-  document.getElementById('approveTime').textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})+' น.';
-  document.getElementById('toSendBtn').disabled = false;
-  showToast('✅ รับรองรายงานแล้ว','success');
+// ===== Approve =====
+function approve(){
+  state.report = document.getElementById('rFull').textContent;
+  state.approved = true; save();
+  markApproved(false);
+  toast('รับรองแล้ว ✅','ok');
+}
+function markApproved(restore){
+  document.getElementById('apZone').classList.add('hidden');
+  document.getElementById('apBadge').classList.remove('hidden');
+  document.getElementById('apTime').textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})+' น.';
+  document.getElementById('toSend').disabled = false;
 }
 
-function doSendAll(){
-  const doEmail = document.getElementById('togEmail').classList.contains('on');
-  const doCal = document.getElementById('togCal').classList.contains('on');
-  const doLine = document.getElementById('togLine').classList.contains('on');
-  
-  if(doEmail){
-    const to = document.getElementById('emailTo').value||'';
-    if(to) window.open(`mailto:${to}?subject=${encodeURIComponent('รายงานการประชุม: '+document.getElementById('mTitle').value)}&body=${encodeURIComponent(reportText)}`);
+// ===== Send =====
+function sendAll(){
+  collectInfo();
+  const i=state.info;
+  const rep = state.report;
+  const d = state.data||{};
+  if(document.getElementById('tgMail').classList.contains('on')){
+    const to = i.email||'';
+    window.open(`mailto:${to}?subject=${encodeURIComponent('รายงานการประชุม: '+(i.title||''))}&body=${encodeURIComponent(rep)}`);
   }
-  
-  if(doCal && summaryData?.action_items){
-    (summaryData.action_items||[]).filter(a=>a.deadline).forEach(a=>{
-      const d = a.deadline.replace(/-/g,'');
-      window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(a.task)}&dates=${d}/${d}`,'_blank');
+  if(document.getElementById('tgCal').classList.contains('on') && d.action_items){
+    (d.action_items||[]).filter(a=>a.deadline).forEach((a,idx)=>{
+      const dt=a.deadline.replace(/-/g,'');
+      setTimeout(()=>window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(a.task)}&dates=${dt}/${dt}&details=${encodeURIComponent('ผู้รับผิดชอบ: '+(a.assignee||'-'))}`,'_blank'), idx*500);
     });
   }
-  
-  if(doLine){
-    const txt = `📋 รายงานการประชุม: ${document.getElementById('mTitle').value}\n${summaryData?.executive_summary||''}\n\n— MeetingAI v5`;
+  if(document.getElementById('tgLine').classList.contains('on')){
+    const txt=`📋 ${i.title||'รายงานการประชุม'}\n${i.date||''} ${i.time||''}\n\n${d.executive_summary||''}`;
     window.open('https://line.me/R/share?text='+encodeURIComponent(txt),'_blank');
   }
-  
-  document.getElementById('doneBlock').classList.remove('hidden');
-  showToast('✅ ส่งแล้ว','success');
+  document.getElementById('sendBtn').classList.add('hidden');
+  document.getElementById('sendBack').classList.add('hidden');
+  document.getElementById('done').classList.remove('hidden');
+  toast('ส่งเรียบร้อย 🎉','ok');
 }
 
-function resetMeeting(){
-  summaryData=null;reportText='';approved=false;
-  document.getElementById('mTranscript').value='';
-  document.getElementById('approveZone').classList.remove('hidden');
-  document.getElementById('approvedBadge').classList.add('hidden');
-  document.getElementById('toSendBtn').disabled=true;
-  document.getElementById('doneBlock').classList.add('hidden');
-  updateCharCount();
-  mGoPage(0);
+// ===== Reset =====
+function resetAll(){
+  if(!confirm('เริ่มประชุมใหม่? ข้อมูลเดิมจะถูกล้าง')) return;
+  state = {step:0, info:{}, transcript:'', result:'', data:null, report:'', approved:false};
+  localStorage.removeItem(LS);
+  location.reload();
 }
 
-function showToast(msg,type=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className=`toast show ${type}`;
-  clearTimeout(window.toastTimer);
-  window.toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+// ===== Toast =====
+let tt;
+function toast(m,t){
+  const el=document.getElementById('toast');
+  el.textContent=m; el.className='toast show '+(t||'');
+  clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('show'),2800);
 }
 </script>
 </body>
