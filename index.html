@@ -151,9 +151,12 @@ main{padding:8px 18px 20px;max-width:560px;margin:0 auto;}
 
 <div class="saved" id="saved">✓ บันทึกแล้ว</div>
 
-<div class="top">
-  <h1>Meeting<span>AI</span></h1>
-  <div class="sub" id="topSub">บันทึกการประชุม → สรุป → ส่งทีม</div>
+<div class="top" style="display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <h1>Meeting<span>AI</span></h1>
+    <div class="sub" id="topSub">บันทึกการประชุม → สรุป → ส่งทีม</div>
+  </div>
+  <button id="keyBtn" onclick="openKeyModal()" style="background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:8px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">⚙️ ตั้งค่า AI</button>
 </div>
 
 <!-- ============ MAIN FLOW PAGE ============ -->
@@ -213,29 +216,47 @@ main{padding:8px 18px 20px;max-width:560px;margin:0 auto;}
       </div>
     </div>
 
-    <!-- STEP 2: AI SUMMARIZE via Claude.ai -->
+    <!-- STEP 2: AI SUMMARIZE -->
     <div id="s2" class="hidden">
-      <div class="card">
-        <h2><span class="ico">🤖</span>ให้ AI สรุป (ฟรี)</h2>
-        <div class="flow">
-          <div class="row"><div class="num">1</div><div class="txt">กดปุ่ม <b>"เปิด Claude แล้ววางให้เลย"</b> ด้านล่าง<br><span style="color:var(--text3);font-size:13px;">(ระบบ copy คำสั่ง+บทพูดให้อัตโนมัติ)</span></div></div>
-          <div class="row"><div class="num">2</div><div class="txt">พอ Claude เปิดขึ้นมา <b>กดค้างในช่องพิมพ์ → วาง → ส่ง</b></div></div>
-          <div class="row"><div class="num">3</div><div class="txt">Claude สรุปเสร็จ → <b>copy คำตอบทั้งหมด</b></div></div>
-          <div class="row"><div class="num">4</div><div class="txt">กลับมาแอปนี้ → <b>วางในช่องล่าง</b> → กดสรุป</div></div>
+
+      <!-- ONE-TAP API MODE -->
+      <div class="card" id="apiCard">
+        <h2><span class="ico">⚡</span>สรุปด้วย AI — ปุ่มเดียวจบ</h2>
+        <div class="hint" id="apiHint" style="margin-bottom:12px;">
+          กดปุ่มเดียว AI สรุปให้ในแอปเลย ไม่ต้องสลับหน้าจอ<br>
+          <span id="keyStatus" style="color:var(--warn);font-weight:700;">⚠️ ยังไม่ได้ใส่ API Key — กด "⚙️ ตั้งค่า AI" มุมขวาบน</span>
+        </div>
+        <button class="btn btn-primary" id="aiBtn" onclick="doAI()">⚡ สรุปเลย (ปุ่มเดียว)</button>
+        <div id="aiLoading" class="hidden" style="text-align:center;padding:18px 0 6px;">
+          <span class="spin"></span>
+          <div style="font-size:14px;color:var(--text2);margin-top:10px;" id="aiStatus">AI กำลังอ่านบทพูด...</div>
         </div>
       </div>
 
-      <button class="btn btn-blue" onclick="openClaude()">📋 เปิด Claude แล้ววางให้เลย</button>
+      <!-- FREE FALLBACK -->
+      <details class="acc" style="margin-top:4px;">
+        <summary>🆓 วิธีฟรี (สลับไป Claude.ai เอง)</summary>
+        <div class="body">
+          <div class="flow">
+            <div class="row"><div class="num">1</div><div class="txt">กดปุ่ม <b>"เปิด Claude แล้ววางให้เลย"</b><br><span style="color:var(--text3);font-size:13px;">(ระบบ copy คำสั่ง+บทพูดให้อัตโนมัติ)</span></div></div>
+            <div class="row"><div class="num">2</div><div class="txt">พอ Claude เปิดขึ้นมา <b>กดค้างในช่องพิมพ์ → วาง → ส่ง</b></div></div>
+            <div class="row"><div class="num">3</div><div class="txt">Claude สรุปเสร็จ → <b>copy คำตอบทั้งหมด</b></div></div>
+            <div class="row"><div class="num">4</div><div class="txt">กลับมาแอปนี้ → <b>วางในช่องล่าง</b> → กดสรุป</div></div>
+          </div>
+          <button class="btn btn-blue" style="margin-top:12px;" onclick="openClaude()">📋 เปิด Claude แล้ววางให้เลย</button>
+          <div style="margin-top:14px;">
+            <label style="display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:600;">วางคำตอบจาก Claude ที่นี่</label>
+            <textarea class="bigpaste" id="iResult" style="min-height:130px;" placeholder="วางคำตอบทั้งหมดจาก Claude มา ระบบดึงข้อมูลให้อัตโนมัติ"></textarea>
+            <div class="btn-row" style="margin-top:10px;">
+              <button class="btn btn-ghost btn-sm" style="margin:0;" onclick="pasteResult()">📋 วาง</button>
+              <button class="btn btn-primary btn-sm" style="margin:0;" onclick="parseResult()">✅ สรุปเลย</button>
+            </div>
+          </div>
+        </div>
+      </details>
 
-      <div class="card" style="margin-top:14px;">
-        <h2><span class="ico">📥</span>วางคำตอบจาก Claude</h2>
-        <textarea class="bigpaste" id="iResult" placeholder="แตะที่นี่ แล้ววาง (paste) คำตอบทั้งหมดจาก Claude มา&#10;&#10;ระบบจะดึงสรุป + มติ + งานที่ต้องทำ ให้อัตโนมัติ"></textarea>
-        <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="pasteResult()">📋 วางจากคลิปบอร์ด</button>
-      </div>
-
-      <div class="btn-row">
+      <div class="btn-row" style="margin-top:12px;">
         <button class="btn btn-back" onclick="go(1)">← กลับ</button>
-        <button class="btn btn-primary" onclick="parseResult()">✅ สรุปเลย →</button>
       </div>
     </div>
 
@@ -339,11 +360,16 @@ main{padding:8px 18px 20px;max-width:560px;margin:0 auto;}
       </div>
     </details>
 
-    <details class="acc">
-      <summary>🤖 ทำไมต้องเปิด Claude เอง?</summary>
+    <details class="acc" open>
+      <summary>⚡ วิธีเปิดใช้ "ปุ่มเดียวจบ"</summary>
       <div class="body">
-        เวอร์ชันฟรีจะ <b>copy คำสั่งให้อัตโนมัติ</b> แล้วเปิด Claude.ai ให้ — คุณแค่วางแล้วส่ง<br><br>
-        ถ้าอยากให้ <b>กดปุ่มเดียวจบ</b> ไม่ต้องสลับหน้าจอ ต้องเติมเครดิต Claude API (เริ่มต้น $5) แล้วบอกผม เดี๋ยวอัปเกรดให้
+        ทำครั้งเดียว 5 นาที:<br><br>
+        <b>1.</b> เปิด <b>platform.claude.com</b> → ล็อกอิน Gmail เดิม<br>
+        <b>2.</b> เลือก <b>Individual</b> → Buy credits → <b>USD 5</b> (~180 บาท ใช้ได้ ~150 ประชุม)<br>
+        <b>3.</b> ไปเมนู <b>API Keys</b> → Create Key → copy (ขึ้นต้น sk-ant-)<br>
+        <b>4.</b> กลับแอปนี้ → กด <b>"⚙️ ตั้งค่า AI"</b> มุมขวาบน → วาง Key → บันทึก<br><br>
+        เสร็จแล้วขั้นที่ 3 จะกดปุ่มเดียว AI สรุปในแอปเลย ไม่ต้องสลับหน้าจอ<br><br>
+        <span style="color:var(--text3);">ยังไม่พร้อมจ่าย? ใช้ "วิธีฟรี" ที่ซ่อนอยู่ในขั้นที่ 3 ได้เหมือนเดิม</span>
       </div>
     </details>
 
@@ -380,6 +406,19 @@ main{padding:8px 18px 20px;max-width:560px;margin:0 auto;}
   <button id="nav-help" onclick="nav('help')"><span class="bi">❓</span>วิธีใช้</button>
 </div>
 
+<!-- API KEY MODAL -->
+<div id="keyModal" style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:flex-end;">
+  <div style="background:var(--surface);border-radius:var(--r) var(--r) 0 0;border:1px solid var(--border);width:100%;padding:22px;">
+    <h3 style="font-size:17px;margin-bottom:4px;">⚙️ ตั้งค่า AI (ปุ่มเดียวจบ)</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7;">ใส่ Claude API Key ครั้งเดียว เก็บในเครื่องเท่านั้น ไม่ผ่าน server<br>ยังไม่มี Key? ดูวิธีขอในแท็บ "วิธีใช้"</p>
+    <input id="keyInput" type="password" placeholder="sk-ant-api03-..." style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);padding:14px;color:var(--text);font-family:inherit;font-size:15px;outline:none;margin-bottom:14px;">
+    <div class="btn-row">
+      <button class="btn btn-ghost" style="margin:0;" onclick="closeKeyModal()">ปิด</button>
+      <button class="btn btn-primary" style="margin:0;" onclick="saveKey()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -404,6 +443,7 @@ function flashSaved(){
 // ===== INIT =====
 window.onload = ()=>{
   load();
+  updateKeyUI();
   const now = new Date();
   // restore or default
   document.getElementById('iTitle').value = state.info.title||'';
@@ -620,6 +660,112 @@ function resetAll(){
   state = {step:0, info:{}, transcript:'', result:'', data:null, report:'', approved:false};
   localStorage.removeItem(LS);
   location.reload();
+}
+
+// ===== API KEY (one-tap mode) =====
+let ANT_KEY = localStorage.getItem('meetingai_key')||'';
+function updateKeyUI(){
+  const st=document.getElementById('keyStatus');
+  const kb=document.getElementById('keyBtn');
+  if(ANT_KEY){
+    st.innerHTML='<span style="color:var(--accent);font-weight:700;">✅ พร้อมใช้ — กดปุ่มด้านล่างได้เลย</span>';
+    kb.style.borderColor='var(--accent)'; kb.style.color='var(--accent)'; kb.textContent='✓ AI พร้อม';
+  }else{
+    st.innerHTML='<span style="color:var(--warn);font-weight:700;">⚠️ ยังไม่ได้ใส่ API Key — กด "⚙️ ตั้งค่า AI" มุมขวาบน</span>';
+    kb.style.borderColor='var(--border)'; kb.style.color='var(--text2)'; kb.textContent='⚙️ ตั้งค่า AI';
+  }
+}
+function openKeyModal(){
+  document.getElementById('keyInput').value=ANT_KEY;
+  document.getElementById('keyModal').style.display='flex';
+}
+function closeKeyModal(){ document.getElementById('keyModal').style.display='none'; }
+function saveKey(){
+  ANT_KEY=document.getElementById('keyInput').value.trim();
+  localStorage.setItem('meetingai_key',ANT_KEY);
+  updateKeyUI(); closeKeyModal();
+  toast(ANT_KEY?'บันทึก Key แล้ว ✅':'ลบ Key แล้ว','ok');
+}
+
+// ===== ONE-TAP AI SUMMARIZE =====
+function buildPrompt(){
+  collectInfo();
+  const i=state.info;
+  const t=document.getElementById('iTranscript').value.trim();
+  return `ช่วยสรุปการประชุมนี้ให้เป็นภาษาไทยทางการ แล้วตอบกลับเป็น JSON เท่านั้น (ไม่ต้องมีคำอธิบายอื่น) ตามรูปแบบนี้:
+
+{
+  "executive_summary": "สรุปภาพรวม 3-5 บรรทัด",
+  "key_decisions": ["มติที่ 1", "มติที่ 2"],
+  "action_items": [
+    {"task": "งานที่ต้องทำ", "assignee": "ผู้รับผิดชอบ", "deadline": "2026-06-15"}
+  ],
+  "open_issues": ["ประเด็นที่ยังค้างอยู่"],
+  "full_report": "รายงานการประชุมฉบับเต็ม เขียนเป็นภาษาทางการ มีหัวข้อ วันที่ ผู้เข้าร่วม สรุป มติ และงานที่ต้องทำ"
+}
+
+ข้อมูลการประชุม:
+- ชื่อ: ${i.title||'-'}
+- วันที่: ${i.date||'-'} เวลา: ${i.time||'-'}
+- สถานที่: ${i.loc||'-'}
+- ผู้เข้าร่วม: ${i.att||'-'}
+
+บทพูดการประชุม:
+"""
+${t}
+"""`;
+}
+
+async function doAI(){
+  const t=document.getElementById('iTranscript').value.trim();
+  if(!t){ toast('กรุณาวางบทพูดในขั้นที่ 2 ก่อน','err'); go(1); return; }
+  if(!ANT_KEY){ toast('กรุณาใส่ API Key ก่อน (⚙️ มุมขวาบน)','err'); openKeyModal(); return; }
+
+  const btn=document.getElementById('aiBtn');
+  const load=document.getElementById('aiLoading');
+  const stat=document.getElementById('aiStatus');
+  btn.disabled=true; load.classList.remove('hidden');
+  stat.textContent='AI กำลังอ่านบทพูด...';
+  const timer=setTimeout(()=>stat.textContent='กำลังสรุปมติและงานที่ต้องทำ...',6000);
+  const timer2=setTimeout(()=>stat.textContent='เกือบเสร็จแล้ว...',15000);
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':ANT_KEY,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5',
+        max_tokens:4000,
+        messages:[{role:'user',content:buildPrompt()}]
+      })
+    });
+    if(!r.ok){
+      const e=await r.json().catch(()=>({}));
+      const msg=(e.error&&e.error.message)||('HTTP '+r.status);
+      if(r.status===401) throw new Error('API Key ไม่ถูกต้อง — ตรวจสอบใน ⚙️ ตั้งค่า AI');
+      if(r.status===400 && /credit/i.test(msg)) throw new Error('เครดิตหมด — เติมเครดิตที่ platform.claude.com');
+      if(r.status===429) throw new Error('เรียกถี่เกินไป รอสักครู่แล้วลองใหม่');
+      throw new Error(msg);
+    }
+    const d=await r.json();
+    const text=(d.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n');
+    const data=extractJSON(text);
+    if(!data) throw new Error('AI ตอบมาแต่อ่านรูปแบบไม่ได้ ลองกดใหม่');
+    state.data=data; state.result=text; save();
+    renderData(data);
+    toast('สรุปเสร็จแล้ว ✅','ok');
+    go(3);
+  }catch(err){
+    toast('❌ '+err.message,'err');
+  }finally{
+    clearTimeout(timer); clearTimeout(timer2);
+    btn.disabled=false; load.classList.add('hidden');
+  }
 }
 
 // ===== Toast =====
